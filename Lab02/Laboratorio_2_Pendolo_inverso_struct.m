@@ -186,6 +186,10 @@ for i=1:2
     bode(G(i));
     grid on
 end
+%% 
+clc
+asymp(sys_mimo(1,:),0.01,1000);
+
 %% Task 1.6 (Simulink lineare) 
 % comparare su latex
 
@@ -233,7 +237,20 @@ grid on
 p = pole(G2(2));
 z = zero(G2(2));
 
-%Ft_P = G2(2)/(1+pend1.kp_m*G2(2)); % funzione di trasferimento da d a theta con regolatore p
+Ft_P = G2(2)/(1+pend1.kp_m*G2(2)); % funzione di trasferimento da d a theta con regolatore p
+
+figure
+rlocus(sys_mimo2(2,:))
+ax = gca;             % Ottieni l'asse corrente
+lines = findall(ax, 'Type', 'line');  % Trova tutte le linee nel plot
+set(lines, 'LineWidth', 2);           % Modifica lo spessore
+
+figure
+rlocus(-sys_mimo2(2,:))
+ax = gca;             % Ottieni l'asse corrente
+lines = findall(ax, 'Type', 'line');  % Trova tutte le linee nel plot
+set(lines, 'LineWidth', 2);           % Modifica lo spessore
+
 %[A3,B3,C3,D3] = tf2ss(cell2mat(Ft_P.Numerator),cell2mat(Ft_P.Denominator)); % spazio agli stati regolato
 
 %% Task 2.3 (controllo stabilità del sistema regolato) 
