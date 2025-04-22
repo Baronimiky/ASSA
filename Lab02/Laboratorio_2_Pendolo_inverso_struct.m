@@ -73,7 +73,7 @@ layout = tiledlayout(3,2);
 for F=pend1.amp
 
     % con l'utilizzo dell'approccio con blocchi di integrazione
-    sim_Lab2_1_3_1 = sim('Lab2_1_3_1.slx');
+    sim_Lab2_1_3_1 = sim('Model_31_02_1.slx');
 
     nexttile;
     plot(sim_Lab2_1_3_1.tout,sim_Lab2_1_3_1.x1,'LineWidth', 2); % spostamento
@@ -97,7 +97,7 @@ layout = tiledlayout(3,2);
 for F=pend1.amp
 
     % con l'utilizzo di M-function
-    sim_Lab2_1_3_2 = sim('Lab2_1_3_2.slx');
+    sim_Lab2_1_3_2 = sim('Model_31_02_2.slx');
     
     nexttile;
     plot(sim_Lab2_1_3_2.tout,sim_Lab2_1_3_2.x1,'LineWidth', 2); % spostamento
@@ -199,7 +199,7 @@ layout = tiledlayout(3,2);
 for F=pend1.amp
 
     % con l'utilizzo di M-function
-    sim_Lab2_1_6 = sim('Lab2_1_6.slx');
+    sim_Lab2_1_6 = sim('Model_31_02_3.slx');
     
     nexttile;
     plot(sim_Lab2_1_6.tout,sim_Lab2_1_6.x1,'LineWidth', 2); % spostamento
@@ -387,7 +387,7 @@ figure
 layout = tiledlayout(1,2);
 
 % con l'utilizzo di M-function
-sim_Lab2_4d = sim('Lab2_4d.slx');
+sim_Lab2_4d = sim('Model_31_02_4.slx');
 
 nexttile;
 plot(sim_Lab2_4d.tout,sim_Lab2_4d.x1,'LineWidth', 2); % spostamento
