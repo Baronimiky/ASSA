@@ -502,3 +502,22 @@ yline(1050)
 
 legend('1','2','3','4','5')
 
+%% TASK 7 (Modello Simulink)
+
+figure
+layout = tiledlayout(2,1);
+
+% con l'utilizzo di spazio agli stati
+Model_1 = sim('Model_31_01_1.slx');
+    
+plot(Model_1.tout,Model_1.u,'LineWidth', 2); % accelerazione
+xlabel('Tempo [s]');
+ylabel('Accelerazione [m/s^2]');
+title(sprintf('Accelerazione applicata sul tank'));
+grid on;
+nexttile;
+plot(Model_1.tout,Model_1.force,'LineWidth', 2); % forza
+xlabel('Tempo [s]');
+ylabel('Forza [N]');
+title(sprintf('Forza dovuta all''accelerazione sul tank'));
+grid on;
