@@ -509,7 +509,8 @@ layout = tiledlayout(2,1);
 
 % con l'utilizzo di spazio agli stati
 Model_1 = sim('Model_31_01_1.slx');
-    
+
+nexttile;
 plot(Model_1.tout,Model_1.u,'LineWidth', 2); % accelerazione
 xlabel('Tempo [s]');
 ylabel('Accelerazione [m/s^2]');
