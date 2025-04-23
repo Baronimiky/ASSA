@@ -364,7 +364,7 @@ s = tf('s'); % definisce la s di Laplace
 R = Kp + Kd*s;
 
 
-odefun_NL = @(t,x) InversePODE_RNL(t,x,l,m,g,M,Kp,Kd,t_pulse);
+odefun_NL = @(t,x) InversePODE_RNL(t,x,l,m,g,M,Kp,Kd,t_pulse2);
 x02 = [0;0;0;0];
 [t_n_NL, x_n_l_NL] = ode45(odefun_NL,deltat3,x02);
 
