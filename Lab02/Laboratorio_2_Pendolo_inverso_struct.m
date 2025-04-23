@@ -190,7 +190,7 @@ end
 clc
 asymp(sys_mimo(1,:),0.01,1000);
 
-%% Task 1.6 (Simulink lineare) 
+%% Task 1.6 (Simulink linearizzato) 
 % comparare su latex
 
 figure
