@@ -31,15 +31,15 @@ t_pulse2 = 0.1;  % % tempo di applicazione dello scalino
 
 psi = 0.456;
 wn = 3.63;  % [rad/s]
-kd = 2*psi*wn / a_c;
-kp = (wn^2+b_c) /a_c;
+Kd = 2*psi*wn / a_c;
+Kp = (wn^2+b_c) /a_c;
 wd = wn*sqrt(1-psi^2);
 phi = acos(psi);
 deltat3 = 0:0.001:5;
 
 pend1 = struct('M',M,'m',m,'l',l,'g',g,'c',c,'b',b,'x0',x0,'x02',x02,'deltat',deltat,'amp',amp,'t_pulse',t_pulse,...
      'a_c',a_c,'b_c',b_c,'k_min',k_min,'omega',omega,'deltat2',deltat2,'kp_m',kp_m,'t_pulse2',t_pulse2,...
-     'psi',psi,'wn',wn,'kd',kd,'kp',kp,'wd',wd,'phi',phi,'deltat3',deltat3);
+     'psi',psi,'wn',wn,'Kd',Kd,'Kp',Kp,'wd',wd,'phi',phi,'deltat3',deltat3);
 
 %% Task 1.1/1.2 (sistema non lineare)
 layout = tiledlayout(3,2);
@@ -396,7 +396,7 @@ ylabel('Spostamento [m]');
 title(sprintf('Spostamento con d = %g N',d));
 grid on;
 nexttile;
-plot(sim_Lab2_4d.tout,sim_Lab2_4d.control_force,'LineWidth', 2); % angolo
+plot(sim_Lab2_4d.tout,sim_Lab2_4d.control_force,'LineWidth', 2); % forza
 xlabel('Tempo (s)');
 ylabel('Forza di controllo (N)');
 title(sprintf('Forza di controllo [N]'));

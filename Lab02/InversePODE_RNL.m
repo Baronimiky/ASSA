@@ -1,4 +1,4 @@
-function [xdot] = InversePODE_RNL(t,x,b,l,m,g,M,c,Kp,Kd,t_pulse)
+function [xdot] = InversePODE_RNL(t,x,l,m,g,M,Kp,Kd,t_pulse)
 
 x1 = x(1);
 x2 = x(2);
