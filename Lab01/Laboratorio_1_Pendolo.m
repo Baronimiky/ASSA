@@ -276,6 +276,98 @@ end
 
 figure
 plot(tempo,y_modal_impulse(1,:))
+% INSERIRE CICLO ITERAZIONE ERRORE
+%% CILCO ITERAZIONE DELL'ERRORE     
+% (differenza tra due configurazioni successive normalizzate)
+
+% Vantaggi: valutazione globale dell'errore, ottengo quindi un'indicazione
+% della distanza complessiva tra le due soluzioni --> rispetto alla sola
+% differenza tra due termini, questo metodo è robusto contro le
+% fluttuazioni locali (non andando ad analizzare punto a punto).
+% Inoltre usare un errore relaitvo piuttoste che assoluto, permette di
+% rendere la misurazione indipendente dalla scala del problema 
+
+% si potrebbe in aggiunta ridurre ulteriormente la tolleranza per andare a
+% sopperire al progressivo sfasamento in realta abbiamo parlato con il
+% professore (tommaso) e ci ha detto che è molto piu complicato di quello
+% che appare e di non addentrarci. Ha detto di considerare solo il criterio
+% sull'ampiezza perche poi ci sarebbe anche il problema di come pesare i
+% due criteri in modo bilanciato ( si potrebbe fare una media ponderata ma
+% lasciamo stare) 
+% (inutile anche aggiungere qualche pendolo per 'sopperire' allo sfasamento. 
+
+
+clc
+tempo = 0:0.01:10;
+u_impulse = input_pendulum_impulse(tempo, 1, 0.01);
+j_ottimo = 0;
+toll = 0.01; % 1% di errore
+
+freq = logspace(-1, 2, 1000); % Frequenza da 0.1 a 100 rad/s
+w = 2*pi*freq; % Conversione in rad/s se freq era in Hz
+
+
+y_vec = zeros(n, length(tempo));
+
+    for j = 1:n
+        A_non_smorzata = zeros(2*j,2*j);
+        B_non_smorzata = zeros(2*j,1);
+        C_non_smorzata = zeros(j,2*j);
+        D_non_smorzata = zeros(j,1);
+        
+        A_smorzata = zeros(2*j,2*j);
+        C_smorzata = zeros(j,2*j);
+        
+        gamma = zeros(1,j);
+ 
+        for i = 2:2:2*j
+            gamma(1,i/2) = 2*damping_ratio*m_n(i/2)*l_n(i/2)^2*w_n(i/2);
+        
+            A_non_smorzata(i-1,i)=1;
+            A_non_smorzata(i,i-1)=-g/l_n(i/2);
+            B_non_smorzata(i,1) = -1/l_n(i/2);
+            C_non_smorzata (i/2,i-1) = -m_n(i/2)*g;
+            D_non_smorzata(i/2,1) = - (m0) ;
+        
+            A_smorzata(i-1,i)=1;
+            A_smorzata(i,i-1)=-g/l_n(i/2);
+            A_smorzata(i,i) = -gamma(1,i/2)/(m_n(i/2)*l_n(i/2)^2);
+        
+            C_smorzata (i/2,i-1) = m_n(i/2)*g; 
+            C_smorzata(i/2,i) = gamma(1,i/2)/l_n(i/2); 
+            B_smorzata = B_non_smorzata;
+            D_smorzata = D_non_smorzata;
+        end 
+
+     
+            y = @(t) C_smorzata*expm(A_smorzata*t)*B_smorzata;
+            
+          
+
+        for i = 1:length(tempo)
+            y_vec(j,i) = sum (y(tempo(i)));
+        end
+
+      
+
+        if j > 1
+        % Calcola l'errore relativo usando la norma L2
+                err = norm(y_vec(j,:) - y_vec(j-1,:)) / norm(y_vec(j-1,:));
+            if err < toll
+                j_ottimo = j;
+                break;
+            end
+        end
+
+            if j_ottimo > 0
+                break;
+            end
+
+    end
+
+        if (j_ottimo == 0)
+            disp('tolleranza non rispettata');
+        end
 
 %% Forma modale STEP
 
@@ -347,109 +439,6 @@ max_err_rel_45m = max(err_rel_45m)
 
 plot(tempo, err_abs_45, tempo, err_abs_45m)
 
-
-
-%% CILCO ITERAZIONE DELL'ERRORE     
-% (differenza tra due configurazioni successive normalizzate)
-
-% Vantaggi: valutazione globale dell'errore, ottengo quindi un'indicazione
-% della distanza complessiva tra le due soluzioni --> rispetto alla sola
-% differenza tra due termini, questo metodo è robusto contro le
-% fluttuazioni locali (non andando ad analizzare punto a punto).
-% Inoltre usare un errore relaitvo piuttoste che assoluto, permette di
-% rendere la misurazione indipendente dalla scala del problema 
-
-% si potrebbe in aggiunta ridurre ulteriormente la tolleranza per andare a
-% sopperire al progressivo sfasamento in realta abbiamo parlato con il
-% professore (tommaso) e ci ha detto che è molto piu complicato di quello
-% che appare e di non addentrarci. Ha detto di considerare solo il criterio
-% sull'ampiezza perche poi ci sarebbe anche il problema di come pesare i
-% due criteri in modo bilanciato ( si potrebbe fare una media ponderata ma
-% lasciamo stare) 
-% (inutile anche aggiungere qualche pendolo per 'sopperire' allo sfasamento. 
-
-
-clc
-tempo = 0:0.01:10;
-u_impulse = input_pendulum_impulse(tempo, 1, 0.01);
-j_ottimo = 0;
-toll = 0.01; % 1% di errore
-
-freq = logspace(-1, 2, 1000); % Frequenza da 0.1 a 100 rad/s
-w = 2*pi*freq; % Conversione in rad/s se freq era in Hz
-
-
-y_vec = zeros(n, length(tempo));
-
-    for j = 1:n
-        A_non_smorzata = zeros(2*j,2*j);
-        B_non_smorzata = zeros(2*j,1);
-        C_non_smorzata = zeros(j,2*j);
-        D_non_smorzata = zeros(j,1);
-        
-        A_smorzata = zeros(2*j,2*j);
-        C_smorzata = zeros(j,2*j);
-        
-        gamma = zeros(1,j);
- 
-        for i = 2:2:2*j
-            gamma(1,i/2) = 2*damping_ratio*m_n(i/2)*l_n(i/2)^2*w_n(i/2);
-        
-            A_non_smorzata(i-1,i)=1;
-            A_non_smorzata(i,i-1)=-g/l_n(i/2);
-            B_non_smorzata(i,1) = -1/l_n(i/2);
-            C_non_smorzata (i/2,i-1) = -m_n(i/2)*g;
-            D_non_smorzata(i/2,1) = - (m0) ;
-        
-            A_smorzata(i-1,i)=1;
-            A_smorzata(i,i-1)=-g/l_n(i/2);
-            A_smorzata(i,i) = -gamma(1,i/2)/(m_n(i/2)*l_n(i/2)^2);
-        
-            C_smorzata (i/2,i-1) = m_n(i/2)*g; 
-            C_smorzata(i/2,i) = gamma(1,i/2)/l_n(i/2); 
-            B_smorzata = B_non_smorzata;
-            D_smorzata = D_non_smorzata;
-        end 
-
-    % check dello sfasamento ma ancora da capire bene 
-        sys = ss(A_smorzata, B_smorzata, C_smorzata, D_smorzata);
-        [mag, phase] = bode(sys, w); % phase in gradi, dim = [1 1 N]
-        phase = squeeze(phase); % riduce la dimensione a [N, 1]
-        figure
-        plot(freq, phase, 'DisplayName', ['Pendoli = ' num2str(j)]);
-            
-        % attenzione che in estrapolando da bode stiamo considerando anche
-        % la freq propria e non il puro sfasamento, quindi atteniamoci alla
-        % sola ampiezza 
-     
-            y = @(t) C_smorzata*expm(A_smorzata*t)*B_smorzata;
-            
-          
-
-        for i = 1:length(tempo)
-            y_vec(j,i) = sum (y(tempo(i)));
-        end
-
-      
-
-        if j > 1
-        % Calcola l'errore relativo usando la norma L2
-                err = norm(y_vec(j,:) - y_vec(j-1,:)) / norm(y_vec(j-1,:));
-            if err < toll
-                j_ottimo = j;
-                break;
-            end
-        end
-
-            if j_ottimo > 0
-                break;
-            end
-
-    end
-
-        if (j_ottimo == 0)
-            disp('tolleranza non rispettata');
-        end
 
 %%  TASK 6 
 
