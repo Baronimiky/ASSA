@@ -156,6 +156,7 @@ odefun_impulse = @(t,x) A_smorzata(1:2,1:2)*x; % B_smorzata(1:2,1)*u_impulse(t);
 % sistema nella direzione dell'impulso, con 0,0 invece l'impulso (unitario)
 % non è sufficiente per inenscare il sistema oppure lo smorzamento è
 % eccessivo 
+options = odeset(MaxStep = 0.1, RelTol = 1e-6, AbsTol = 1e-9);
 tic;
 [t_n_impulse_45m, theta_n_impulse_45m] = ode45(odefun_impulse,tempo,B_smorzata(1:2,1),options);
 tempo_esecuzione_45m = toc
