@@ -388,76 +388,80 @@ y_vec = zeros(n, length(tempo));
             disp('tolleranza non rispettata');
         end
 
+%% soluzione con STEP di matlab 
+
+clc
+j_ottimo = 4; 
+tempo = 0:0.01:100;
+A_smorzata_step = A_smorzata(1:2*j_ottimo,1:2*j_ottimo);
+B_smorzata_step = B_smorzata(1:2*j_ottimo,1);
+C_smorzata_step = C_smorzata(1:j_ottimo,1:2*j_ottimo);
+D_smorzata_step = D_smorzata(1:j_ottimo,1);
+C_smorzata_step = ones(1,4) * C_smorzata_step; % sommo tutti i contributi di F
+% relativi ai singoli pendoli 
+D_smorzata_step = D_smorzata_step(1); % D (m0) la sommo solo una volta come
+% da definizione di F nel libro sullo sloshing
+sys_step = ss(A_smorzata_step,B_smorzata_step,C_smorzata_step,D_smorzata_step);
+y_step = step(sys_step,tempo);
+step(sys_step,tempo);
+exportgraphics(gcf, 'Risposta_step.pdf', 'ContentType', 'vector', 'BackgroundColor','none')
+iiiii = step(sys_step,tempo);
+
+%% SOLUZIONE HEAVISIDE STEP
+y_vals_heaviside_step = zeros(1,length(tempo));
+for i = 1:j_ottimo
+    c = gamma(i) / (m_n(i)*l_n(i)^2); 
+    temp = sqrt(w_n(i)^2-0.25*c^2);
+    y_heaviside_step = @(t) m_n(i)*(exp(-c/2*t)*cos(temp*t)+...
+        (-0.5*c)/(temp)*exp(-c/2*t)* sin(temp*t)) 
+    y_vals_heaviside_step = y_vals_heaviside_step + arrayfun(y_heaviside_step, tempo);
+end
+y_vals_heaviside_step + (-sum(m_n(1:j_ottimo)) - m0); % aggiungo il contributo
+% m0 una sola volta 
+figure
+plot(tempo,y_vals_heaviside_step+ (-sum(m_n(1:j_ottimo)) - m0))
+%% soluzione esatta con expm STEP
+y_vals_step_esatta = zeros(1,length(tempo));
+y_esatta_step = @(t) C_smorzata(1:j_ottimo,1:2*j_ottimo)*inv(A_smorzata(1:2*j_ottimo,1:2*j_ottimo))...
+    *(expm(A_smorzata(1:2*j_ottimo,1:2*j_ottimo)*t)-eye(2*j_ottimo))...
+    *B_smorzata(1:2*j_ottimo,1);
+for i = 1:length(tempo)
+    y_vals_step_esatta(i) = sum(y_esatta_step(tempo(i)));
+end
+y_vals_step_esatta  = y_vals_step_esatta + D_smorzata(1);
+figure
+plot(tempo, y_vals_step_esatta)
+xlabel('Tempo(s)')
+ylabel('F_x (N)')
+grid on
+exportgraphics(gcf, 'Risposta_esatta_step.pdf', 'ContentType', 'vector', 'BackgroundColor','none')
+figure
+plot(tempo, y_vals_step_esatta-iiiii')
+grid on
+exportgraphics(gcf, 'Confronto_step_esatta.pdf', 'ContentType', 'vector', 'BackgroundColor','none')
+
 %% Forma modale STEP
-
-
 [V,Lambda] = eig(A_smorzata(1:2*j_ottimo,1:2*j_ottimo)); % V matrice di autovettori di A 
    
 lambda = diag(Lambda) % lambda matrice diag di autovalori
 lambda_inv = diag(1./(lambda));
 V_inv = V\B_smorzata(1:2*j_ottimo,1);
 z = @(t) lambda_inv*((expm(lambda*t)-eye(2*j_ottimo)) * V_inv);
-
 y_modal_step= zeros(1,length(tempo));
 u_step = input_pendulum(tempo, 1, 0);
-
 for i = 1:length(tempo)
     eLambda = diag(exp(lambda*tempo(i)));
     y_modal_step(i) = sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*V*lambda_inv*...
         (eLambda-eye(2*j_ottimo)) * V_inv,1)+ D_smorzata(1)*u_step(tempo(i));
 end
-
 % per y_modal_impulse la formula non è esplicitamente sulle slide ma l'ho
 % estrapolata per comparazione dalla forma generale: 
 % risposta imp = C*expm(A*t)*B
 % risposta step = C*A^-1 * (expm(A*t)-I)*B
 % dove expm(A*t) = V*expm(lambda*t)*V^(-1)
-
 plot(tempo,y_modal_step(1,:))
 
-
-%% SOLUZIONE NUMERICA STEP (usato ode45 ma bisogna capire qual è il metodo
-% migliore tra i vari) (l'ha fatto albi)
-
-x0 = zeros(2*j_ottimo, 1);  % considerando 8 pendoli devo assegnare le 8 
-%codnizioni ini
-u_step = input_pendulum(tempo, 1, 0)
-
-odefun_step = @(t,x) A_smorzata(1:2*j_ottimo,1:2*j_ottimo)*x +...
-    B_smorzata(1:2*j_ottimo,1)*u_step(t)
-tic 
-[t_n_step, theta_n_step] = ode45(odefun_step,tempo, x0);
-t_45 = toc
-F_step = @(t) (sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*theta_n_step',1))  +...
-     D_smorzata(1)*u_step(t);
- % anche in questo caso sommo tutti i contributi dei singoli pendoli stando
- % attento a non sommare molteplici volte il contributo costante della
- % massa m0 che chiaramente deve essere considerato una sola volta
-
-tic 
-options = odeset(MaxStep = 0.1, RelTol = 1e-6, AbsTol = 1e-9); 
-[t_n_step_m, theta_n_step_m] = ode45(odefun_step,tempo, x0, options);
-t45m = toc
-F_step_m = @(t) (sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*theta_n_step_m',1))  +...
-     D_smorzata(1)*u_step(t);
-
-plot(tempo,F_step(tempo), tempo,F_step_m(tempo));
-
-
-err_abs_45 = abs(y_vals_step_esatta - F_step(tempo)); 
-max_err_45 = max(err_abs_45) 
-
-err_rel_45 = abs(err_abs_45 / y_vals_step_esatta);
-max_err_rel_45 = max(err_rel_45)
-
-err_abs_45m = abs(y_vals_step_esatta - F_step_m(tempo)); 
-max_err_45m = max(err_abs_45m) 
-
-err_rel_45m = abs(err_abs_45 / y_vals_step_esatta);
-max_err_rel_45m = max(err_rel_45m)
-
-plot(tempo, err_abs_45, tempo, err_abs_45m)
-
+%% Metodo integrazione STEP
 
 %%  TASK 6 
 
