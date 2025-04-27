@@ -156,17 +156,8 @@ odefun_impulse = @(t,x) A_smorzata(1:2,1:2)*x; % B_smorzata(1:2,1)*u_impulse(t);
 % sistema nella direzione dell'impulso, con 0,0 invece l'impulso (unitario)
 % non è sufficiente per inenscare il sistema oppure lo smorzamento è
 % eccessivo 
-options = odeset(MaxStep = 0.1, RelTol = 1e-6, AbsTol = 1e-9);
-tic;
-[t_n_impulse_45m, theta_n_impulse_45m] = ode45(odefun_impulse,tempo,B_smorzata(1:2,1),options);
-tempo_esecuzione_45m = toc
 
-for ii = 1:length(tempo)
-    F_impulse_45m(ii) = C_smorzata(1,1)*theta_n_impulse_45m(ii,1)+C_smorzata(1,2)...
-        *theta_n_impulse_45m(ii,2); %+ D_smorzata(1)* u_impulse(ii/100);
-end
-
-
+% ode45 standard
 tic
 [t_n_impulse_45, theta_n_impulse_45] = ode45(odefun_impulse,tempo,B_smorzata(1:2,1));
 tempo_esecuzione_45 = toc
@@ -176,35 +167,62 @@ for ii = 1:length(tempo)
         *theta_n_impulse_45(ii,2); %+ D_smorzata(1)* u_impulse(ii/100);
 end
 
+% ode45 modificato
+options = odeset(MaxStep = 0.01, RelTol = 1e-6, AbsTol = 1e-9);
+tic;
+[t_n_impulse_45m, theta_n_impulse_45m] = ode45(odefun_impulse,tempo,B_smorzata(1:2,1),options);
+tempo_esecuzione_45m = toc
+
+for ii = 1:length(tempo)
+    F_impulse_45m(ii) = C_smorzata(1,1)*theta_n_impulse_45m(ii,1)+C_smorzata(1,2)...
+        *theta_n_impulse_45m(ii,2); %+ D_smorzata(1)* u_impulse(ii/100);
+end
+
+% ode78 standard
+
+tic
+[t_n_impulse_78, theta_n_impulse_78] = ode78(odefun_impulse,tempo,B_smorzata(1:2,1));
+tempo_esecuzione_78 = toc
+
+for ii = 1:length(tempo)
+    F_impulse_78(ii) = C_smorzata(1,1)*theta_n_impulse_78(ii,1)+C_smorzata(1,2)...
+        *theta_n_impulse_78(ii,2); %+ D_smorzata(1)* u_impulse(ii/100);
+end
+
+
+
 figure(7)
-plot(tempo,F_impulse_45, tempo, F_impulse_45m)
-legend('45', '45m')
+plot(tempo,F_impulse_45,'LineWidth',1.5) 
+hold on
+plot(tempo, F_impulse_45m,'LineWidth',1.5)
+hold on
+plot(tempo, F_impulse_78,'LineWidth',1.5)
+legend('ode45', 'ode45 modificato', 'ode78')
+xlabel('tempo (s)')
+ylabel('F_x (N)')
 
 
 error_abs_45 = abs(y_vals_impulse - F_impulse_45);
 error_abs_45m = abs(y_vals_impulse - F_impulse_45m);
+error_abs_78 = abs(y_vals_impulse - F_impulse_78);
 
 max_err_45 = max(error_abs_45)
 max_err_45m = max(error_abs_45m)
+max_err_78 = max(error_abs_78)
 
-%% soluzione con STEP di matlab 
-clc
-j_ottimo = 4; 
-tempo = 0:0.01:10;
-A_smorzata_step = A_smorzata(1:2*j_ottimo,1:2*j_ottimo);
-B_smorzata_step = B_smorzata(1:2*j_ottimo,1);
-C_smorzata_step = C_smorzata(1:j_ottimo,1:2*j_ottimo);
-D_smorzata_step = D_smorzata(1:j_ottimo,1);
 
-C_smorzata_step = ones(1,4) * C_smorzata_step; % sommo tutti i contributi di F
-% relativi ai singoli pendoli 
-D_smorzata_step = D_smorzata_step(1); % D (m0) la sommo solo una volta come
-% da definizione di F nel libro sullo sloshing
-sys_step = ss(A_smorzata_step,B_smorzata_step,C_smorzata_step,D_smorzata_step);
-y_step = step(sys_step,tempo);
-step(sys_step,tempo);
-
-%% SOLUZIONE HEAVISIDE STEP
+figure(8)
+plot(tempo, error_abs_45)
+xlabel('tempo(s)')
+ylabel('errore')
+figure(9)
+plot(tempo, error_abs_45m)
+xlabel('tempo(s)')
+ylabel('errore')
+figure(10)
+plot(tempo, error_abs_78)
+xlabel('tempo(s)')
+ylabel('errore')
 
 y_vals_heaviside_step = zeros(1,length(tempo));
 for i = 1:j_ottimo
