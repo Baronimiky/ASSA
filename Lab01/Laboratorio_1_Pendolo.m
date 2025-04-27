@@ -278,7 +278,7 @@ end
 figure
 plot(tempo,y_modal_impulse(1,:))
 % INSERIRE CICLO ITERAZIONE ERRORE
-%% CILCO ITERAZIONE DELL'ERRORE     
+%% CICLO ITERAZIONE DELL'ERRORE     
 % (differenza tra due configurazioni successive normalizzate)
 
 % Vantaggi: valutazione globale dell'errore, ottengo quindi un'indicazione
