@@ -525,7 +525,7 @@ yline(1050)
 legend('1','2','3','4','5')
 
 %% TASK 7 (Modello Simulink)
-
+x0 = [0 0 0 0 0 0 0 0]';
 figure
 layout = tiledlayout(2,1);
 
@@ -544,3 +544,7 @@ xlabel('Tempo [s]');
 ylabel('Forza [N]');
 title(sprintf('Forza dovuta all''accelerazione sul tank'));
 grid on;
+
+
+%%
+plot(Model_1.tout,Model_1.force-iiiii,'LineWidth', 2);
