@@ -224,35 +224,9 @@ plot(tempo, error_abs_78)
 xlabel('tempo(s)')
 ylabel('errore')
 
-y_vals_heaviside_step = zeros(1,length(tempo));
-for i = 1:j_ottimo
-    c = gamma(i) / (m_n(i)*l_n(i)^2); 
-    temp = sqrt(w_n(i)^2-0.25*c^2);
-    y_heaviside_step = @(t) m_n(i)*(exp(-c/2*t)*cos(temp*t)+...
-        (-0.5*c)/(temp)*exp(-c/2*t)* sin(temp*t)) 
-    y_vals_heaviside_step = y_vals_heaviside_step + arrayfun(y_heaviside_step, tempo);
 
-end
-y_vals_heaviside_step + (-sum(m_n(1:j_ottimo)) - m0); % aggiungo il contributo
-% m0 una sola volta 
 
-figure
-plot(tempo,y_vals_heaviside_step+ (-sum(m_n(1:j_ottimo)) - m0))
 
-%% soluzione esatta con expm STEP
-
-y_vals_step_esatta = zeros(1,length(tempo));
-
-y_esatta_step = @(t) C_smorzata(1:j_ottimo,1:2*j_ottimo)*inv(A_smorzata(1:2*j_ottimo,1:2*j_ottimo))...
-    *(expm(A_smorzata(1:2*j_ottimo,1:2*j_ottimo)*t)-eye(2*j_ottimo))...
-    *B_smorzata(1:2*j_ottimo,1);
-for i = 1:1001
-    y_vals_step_esatta(i) = sum(y_esatta_step(tempo(i)));
-end
-
-y_vals_step_esatta  = y_vals_step_esatta + D_smorzata(1);
-
-plot(tempo, y_vals_step_esatta)
 
 
 %% Forma modale di impulse 
