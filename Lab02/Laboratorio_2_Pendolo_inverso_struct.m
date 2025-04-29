@@ -216,6 +216,22 @@ for F=pend1.amp
 
 end
 
+%% Confronto tra modello lineare e non lineare - differenza tra i grafici
+% F = 25N
+
+figure(100)
+plot(sim_Lab2_1_6.tout,sim_Lab2_1_6.x1 - sim_Lab2_1_3_2.x1,'LineWidth', 2); % spostamento
+xlabel('Tempo (s)');
+ylabel('Spostamento [m]');
+title(sprintf('Differenza tra gli spostamenti del Carrello (linearizzato e non) con F = 25 N'));
+grid on;
+
+figure(200)
+plot(sim_Lab2_1_6.tout,sim_Lab2_1_6.theta - sim_Lab2_1_3_2.theta,'LineWidth', 2); % angolo
+xlabel('Tempo (s)');
+ylabel('Theta (°)');
+title(sprintf('Differenza tra gli angoli del pendolo (linearizzato e non) con F = 25 N'));
+grid on;
 
 %% task 2.1/2.2 (non lineare, spazio stati non lineare, lineare, spazio stati lineare,tf,pzmap)
 
