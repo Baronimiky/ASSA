@@ -390,10 +390,10 @@ for i = 1:j_ottimo
         (-0.5*c)/(temp)*exp(-c/2*t)* sin(temp*t)) 
     y_vals_heaviside_step = y_vals_heaviside_step + arrayfun(y_heaviside_step, tempo);
 end
-y_vals_heaviside_step + (-sum(m_n(1:j_ottimo)) - m0); % aggiungo il contributo
+y_vals_heaviside_step = y_vals_heaviside_step + (-sum(m_n(1:j_ottimo)) - m0); % aggiungo il contributo
 % m0 una sola volta 
 figure
-plot(tempo,y_vals_heaviside_step+ (-sum(m_n(1:j_ottimo)) - m0))
+plot(tempo,y_vals_heaviside_step)
 %% soluzione esatta con expm STEP
 y_vals_step_esatta = zeros(1,length(tempo));
 y_esatta_step = @(t) C_smorzata(1:j_ottimo,1:2*j_ottimo)*inv(A_smorzata(1:2*j_ottimo,1:2*j_ottimo))...
@@ -403,6 +403,7 @@ for i = 1:length(tempo)
     y_vals_step_esatta(i) = sum(y_esatta_step(tempo(i)));
 end
 y_vals_step_esatta  = y_vals_step_esatta + D_smorzata(1);
+
 figure
 plot(tempo, y_vals_step_esatta)
 xlabel('Tempo(s)')
@@ -546,5 +547,12 @@ title(sprintf('Forza dovuta all''accelerazione sul tank'));
 grid on;
 
 
-%%
+%% Confronto tra i vari metodi risolutivi
+figure(20)
 plot(Model_1.tout,Model_1.force-iiiii,'LineWidth', 2);
+
+figure(30)
+plot(Model_1.tout,Model_1.force-y_vals_step_esatta','LineWidth', 2);
+
+figure(40)
+plot(Model_1.tout,Model_1.force-y_vals_heaviside_step','LineWidth', 2);
