@@ -43,9 +43,51 @@ pend1 = struct('M',M,'m',m,'l',l,'g',g,'c',c,'b',b,'x0',x0,'x02',x02,'deltat',de
 
 %% Task 1.1/1.2 (sistema non lineare)
 layout = tiledlayout(3,2);
+
+t_int_45 = zeros(1,3);
+t_int_15s = zeros(1,3);
+t_int_78 = zeros(1,3); 
+t_int_45m = zeros(1,3);
+options1 = odeset('AbsTol', 1e-15, 'RelTol', 1e-12, 'MaxStep', 0.001);
+options2 = odeset('AbsTol', 1e-12, 'RelTol', 1e-9, 'MaxStep', 0.01);
+x_n_113_n = [];
+x_n_45_n = []; 
+x_n_45m_n = []; 
+x_n_78_n = [];
+
 for i=1:3
+    
     odefun = @(t,x) InversePODE(t,x,pend1,i);
+    tic
     [t_n, x_n] = ode45(odefun,deltat,x0);
+    x_n_45_n = [x_n_45_n, x_n]; 
+    t_int_45(i) = toc;
+    tic
+    [t_n_stiff, x_n_es_stiff] = ode15s(odefun,deltat,x0);
+    t_int_15s(i) = toc;
+    
+    % Verifichiamo che il problema sia non stiff anche se si capisce già da
+    % un breve osservazione iniziale. 
+    % Ora, una volta verificato che il problema sia non stiff...
+    % possiamo verificare le performance del metodo attraverso un
+    % metodo molto preciso che approssima molto bene la soluzione analitica
+    
+    [t_n_113, x_n_113] = ode113(odefun,deltat,x0,options1);
+     x_n_113_n = [x_n_113_n,x_n_113];
+
+    % metodo 45 modificato 
+    tic
+    [t_n, x_n_45_m] = ode45(odefun,deltat,x0, options2);
+    t_int_45m(i) = toc;
+    x_n_45m_n = [x_n_45m_n, x_n_45_m];
+
+    % metodo 78 
+    tic
+    [t_n, x_n_78] = ode78(odefun,deltat,x0);
+    t_int_78(i) = toc;
+    x_n_78_n = [x_n_78_n, x_n_78];
+
+
     nexttile; plot(t_n,x_n(:,1), 'LineWidth', 2); % spostamento
     ylabel('Spostamento [m]');
     title(sprintf('Spostamento del Carrello = %g N',pend1.amp(i)));
@@ -55,9 +97,11 @@ for i=1:3
     ylabel('Theta (°)');
     title(sprintf('Angolo del pendolo = %g N',pend1.amp(i)));
     grid on;
+
 end
 
 % Plot della forza applicata con un amplificazione di 1 N
+
 F = (pend1.deltat > 1 & pend1.deltat < 2) * 1; % 1 N tra 1 s e 2 s, 0 altrove
 figure
 plot(pend1.deltat, F, 'LineWidth', 2);
@@ -65,6 +109,62 @@ xlabel('Tempo (s)');
 ylabel('Forza (N)');
 title('Forza sul Carrello amp = 1 N');
 grid on;
+
+
+% Calcolo degli errori assoluti
+
+metodi = {'ode45', 'ode45m', 'ode78'};
+x_all = {x_n_45_n, x_n_45m_n, x_n_78_n};
+err = struct();
+
+for k = 1:numel(metodi)
+    err.(metodi{k}).spostamento = zeros(length(t_n), 3);
+    err.(metodi{k}).theta = zeros(length(t_n), 3);
+end
+
+% Loop su ogni forzante
+for i = 1:3
+    offset = 4*(i-1); % offset colonne: 0, 4, 8
+    for k = 1:numel(metodi)
+        xk = x_all{k};
+        err.(metodi{k}).spostamento(:,i) = abs(x_n_113_n(:,1+offset) - xk(:,1+offset));
+        err.(metodi{k}).theta(:,i)       = abs(x_n_113_n(:,3+offset) - xk(:,3+offset));
+    end
+end
+
+% Calcolo errore massimi
+
+for k = 1:numel(metodi)
+    fprintf('\nErrori massimi con %s:\n', metodi{k});
+    for i = 1:3
+        max_sp = max(err.(metodi{k}).spostamento(:,i));
+        max_th = max(err.(metodi{k}).theta(:,i));
+        fprintf('Forzante %d N: Spostamento = %.2e, Theta = %.2e\n', pend1.amp(i), max_sp, max_th);
+    end
+end
+
+% Visualizzazione separata per ogni metodo con tutte le forzanti
+
+for k = 1:numel(metodi)
+    figure('Name', sprintf('Errori - %s', metodi{k}), 'NumberTitle', 'off');
+    tiledlayout(3,2);
+
+    for i = 1:3
+        nexttile;
+        plot(t_n, err.(metodi{k}).spostamento(:,i), 'LineWidth', 2);
+        ylabel('Spostamento [m]');
+        title(sprintf('Errore Spostamento = %g N (%s)', pend1.amp(i), metodi{k}));
+        grid on;
+
+        nexttile;
+        plot(t_n, err.(metodi{k}).theta(:,i), 'LineWidth', 2);
+        xlabel('Tempo (s)');
+        ylabel('Theta (°)');
+        title(sprintf('Errore Angolo = %g N (%s)', pend1.amp(i), metodi{k}));
+        grid on;
+    end
+end
+
 %% Task 1.3 (Simulink non lineare)
 
 figure
