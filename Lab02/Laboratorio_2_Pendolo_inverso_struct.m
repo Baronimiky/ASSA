@@ -226,7 +226,7 @@ figure
 layout = tiledlayout(3,2);
 for i=1:3
     odefun_l = @(t,x) InversePODE_L(t,x,A,B,pend1,i);
-    [t_n, x_n_l] = ode45(odefun_l,pend1.deltat,pend1.x02);
+    [t_n, x_n_l] = ode45(odefun_l,pend1.deltat,pend1.x02,options2);
     nexttile;
     plot(t_n,x_n_l(:,1),'LineWidth', 2); % spostamento
     xlabel('Tempo (s)');
