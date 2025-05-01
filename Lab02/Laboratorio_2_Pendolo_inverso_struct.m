@@ -88,11 +88,11 @@ for i=1:3
     x_n_78_n = [x_n_78_n, x_n_78];
 
 
-    nexttile; plot(t_n,x_n(:,1), 'LineWidth', 2); % spostamento
+    nexttile; plot(t_n,x_n_45_m(:,1), 'LineWidth', 2); % spostamento
     ylabel('Spostamento [m]');
     title(sprintf('Spostamento del Carrello = %g N',pend1.amp(i)));
     grid on;
-    nexttile; plot(t_n,x_n(:,3)*(180/pi), 'LineWidth', 2); % angolo in gradi
+    nexttile; plot(t_n,x_n_45_m(:,3)*(180/pi), 'LineWidth', 2); % angolo in gradi
     xlabel('Tempo (s)');
     ylabel('Theta (°)');
     title(sprintf('Angolo del pendolo = %g N',pend1.amp(i)));
