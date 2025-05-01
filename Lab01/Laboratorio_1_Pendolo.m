@@ -93,7 +93,7 @@ end
 B_smorzata = B_non_smorzata;
 D_smorzata = D_non_smorzata;
 
-%% Task 3
+% Task 3
 
 % creo modello spazio degli stati attraverso sys e valuto nell'intervallo
 % la risposta all'impulso con la funzione integrata di matlab (considero
@@ -103,7 +103,7 @@ D_smorzata = D_non_smorzata;
 sys = ss(A_smorzata(1:2,1:2),B_smorzata(1:2,1),C_smorzata(1,1:2),D_smorzata(1));
 tempo  = 0:0.01:10;
 
-%% soluzione con IMPULSE di matlab
+% soluzione con IMPULSE di matlab
 
 impulse(sys, tempo);
 [y_impulse, t_out] = impulse(sys, tempo);
@@ -130,7 +130,7 @@ impulse(sys, tempo);
 (m_n(1)+ m0)*g/l_n(1)
 G1 = tf(sys)
 
-%% SOLUZIONE ESATTA IMPULSE
+% SOLUZIONE ESATTA IMPULSE
 
 % confronto con soluzione analitica (intesa come esatta, non come a mano)
 % in realta questo è esattamente quello che fa impulse
@@ -146,7 +146,7 @@ y_vals_impulse = arrayfun(y, tempo); % Calcola y per ogni valore di tempo
 figure(2)
 plot(tempo, y_vals_impulse);
 
-%% METODO NUMERICO IMPULSE (come in STEP ho usato ode45 ma va verificato, 
+% METODO NUMERICO IMPULSE (come in STEP ho usato ode45 ma va verificato, 
 % anzi è sicuramente meglio se usiamo due metodi diversi)
 clc
 u_impulse = input_pendulum_impulse(tempo, 1, 0.01);
@@ -190,8 +190,7 @@ for ii = 1:length(tempo)
 end
 
 
-
-figure(7)
+figure
 plot(tempo,F_impulse_45,'LineWidth',1.5) 
 hold on
 plot(tempo, F_impulse_45m,'LineWidth',1.5)
@@ -200,6 +199,7 @@ plot(tempo, F_impulse_78,'LineWidth',1.5)
 legend('ode45', 'ode45 modificato', 'ode78')
 xlabel('tempo (s)')
 ylabel('F_x (N)')
+title('Confronto output diversi metodi')
 
 
 error_abs_45 = abs(y_vals_impulse - F_impulse_45);
@@ -211,25 +211,24 @@ max_err_45m = max(error_abs_45m)
 max_err_78 = max(error_abs_78)
 
 
-figure(8)
+figure
 plot(tempo, error_abs_45)
 xlabel('tempo(s)')
 ylabel('errore')
-figure(9)
+title('Errore assoluto impulso ode45')
+figure
 plot(tempo, error_abs_45m)
 xlabel('tempo(s)')
 ylabel('errore')
-figure(10)
+title('Errore assoluto impulso ode45m')
+figure
 plot(tempo, error_abs_78)
 xlabel('tempo(s)')
 ylabel('errore')
+title('Errore assoluto impulso ode78')
 
 
-
-
-
-
-%% Forma modale di impulse 
+% Forma modale di impulse 
 
 % cosa significa in questo problema usare la modal form? 
 % In questo caso stiamo modellando una matrice 2x2 che descrive un sistema
@@ -269,8 +268,8 @@ end
 
 figure
 plot(tempo,y_modal_impulse(1,:))
-% INSERIRE CICLO ITERAZIONE ERRORE
-%% CICLO ITERAZIONE DELL'ERRORE     
+
+% CICLO ITERAZIONE DELL'ERRORE     
 % (differenza tra due configurazioni successive normalizzate)
 
 % Vantaggi: valutazione globale dell'errore, ottengo quindi un'indicazione
@@ -362,7 +361,7 @@ y_vec = zeros(n, length(tempo));
             disp('tolleranza non rispettata');
         end
 
-%% soluzione con STEP di matlab 
+% soluzione con STEP di matlab 
 
 clc
 j_ottimo = 4; 
@@ -381,7 +380,7 @@ step(sys_step,tempo);
 exportgraphics(gcf, 'Risposta_step.pdf', 'ContentType', 'vector', 'BackgroundColor','none')
 iiiii = step(sys_step,tempo);
 
-%% SOLUZIONE HEAVISIDE STEP
+% SOLUZIONE HEAVISIDE STEP
 y_vals_heaviside_step = zeros(1,length(tempo));
 for i = 1:j_ottimo
     c = gamma(i) / (m_n(i)*l_n(i)^2); 
@@ -394,7 +393,7 @@ y_vals_heaviside_step = y_vals_heaviside_step + (-sum(m_n(1:j_ottimo)) - m0); % 
 % m0 una sola volta 
 figure
 plot(tempo,y_vals_heaviside_step)
-%% soluzione esatta con expm STEP
+% soluzione esatta con expm STEP
 y_vals_step_esatta = zeros(1,length(tempo));
 y_esatta_step = @(t) C_smorzata(1:j_ottimo,1:2*j_ottimo)*inv(A_smorzata(1:2*j_ottimo,1:2*j_ottimo))...
     *(expm(A_smorzata(1:2*j_ottimo,1:2*j_ottimo)*t)-eye(2*j_ottimo))...
@@ -415,7 +414,7 @@ plot(tempo, y_vals_step_esatta-iiiii')
 grid on
 exportgraphics(gcf, 'Confronto_step_esatta.pdf', 'ContentType', 'vector', 'BackgroundColor','none')
 
-%% Forma modale STEP
+% Forma modale STEP
 [V,Lambda] = eig(A_smorzata(1:2*j_ottimo,1:2*j_ottimo)); % V matrice di autovettori di A 
    
 lambda = diag(Lambda) % lambda matrice diag di autovalori
@@ -436,7 +435,7 @@ end
 % dove expm(A*t) = V*expm(lambda*t)*V^(-1)
 plot(tempo,y_modal_step(1,:))
 
-%% Metodo integrazione STEP
+% Metodo integrazione STEP
 x0 = zeros(2*j_ottimo, 1);  % considerando 8 pendoli devo assegnare le 8 
 %codnizioni ini
 u_step = input_pendulum(tempo, 1, 0)
@@ -503,7 +502,7 @@ plot(tempo, err_abs_78)
 xlabel('tempo (s)')
 ylabel('Errore assoluto')
 
-%%  TASK 6 
+%  TASK 6 
 
 j = j_ottimo;
             A_non_smorzata = zeros(2*j,2*j);
@@ -565,7 +564,7 @@ j = j_ottimo;
         bode(G_freq_spostamento)
        hold on
       
-      %%  Modello Frozen Fluid (strano, magari ho interpretato male)
+      %  Modello Frozen Fluid (strano, magari ho interpretato male)
 
       M_tot = sum(m_n) + m0; % massa totale del sistema che NON partecipa allo sloshing
 
@@ -578,8 +577,6 @@ j = j_ottimo;
       % so, va approfondito/chiesto 
 
 
-%% 
-
 plot(tempo,y_vec(1,:),'r')
 hold on
 plot(tempo,y_vec(2,:),'b')
@@ -590,7 +587,7 @@ yline(1050)
 
 legend('1','2','3','4','5')
 
-%% TASK 7 (Modello Simulink)
+% TASK 7 (Modello Simulink)
 x0 = [0 0 0 0 0 0 0 0]';
 figure
 layout = tiledlayout(2,1);
@@ -612,7 +609,7 @@ title(sprintf('Forza dovuta all''accelerazione sul tank'));
 grid on;
 
 
-%% Confronto tra i vari metodi risolutivi
+% Confronto tra i vari metodi risolutivi
 figure(20)
 plot(Model_1.tout,Model_1.force-iiiii,'LineWidth', 2);
 
