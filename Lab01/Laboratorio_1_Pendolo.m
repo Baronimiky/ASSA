@@ -621,3 +621,28 @@ plot(Model_1.tout,Model_1.force-y_vals_step_esatta','LineWidth', 2);
 
 figure(40)
 plot(Model_1.tout,Model_1.force-y_vals_heaviside_step','LineWidth', 2);
+
+% function utilizzate:
+% function input impulso 
+function  u = input_pendulum_impulse(t, amp, t0)
+    % 
+    % if  t==t0
+    %      force = amp;
+    %  else 
+    %      force = 0; 
+    %  end
+    %  u = force; 
+
+    u = @(t) (t < t0 ) *amp; % Impulso breve di durata ~1ms
+end
+
+% function input step
+function  u = input_pendulum(t, amp, t0)
+ 
+if t>= t0
+     force = amp;
+ else 
+     force = 0; 
+ end
+ u = @(t) force; 
+end
