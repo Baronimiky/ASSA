@@ -437,6 +437,71 @@ end
 plot(tempo,y_modal_step(1,:))
 
 %% Metodo integrazione STEP
+x0 = zeros(2*j_ottimo, 1);  % considerando 8 pendoli devo assegnare le 8 
+%codnizioni ini
+u_step = input_pendulum(tempo, 1, 0)
+
+odefun_step = @(t,x) A_smorzata(1:2*j_ottimo,1:2*j_ottimo)*x +...
+    B_smorzata(1:2*j_ottimo,1)*u_step(t);
+
+% ode 45
+tic 
+[t_n_step, theta_n_step] = ode45(odefun_step,tempo, x0);
+t_45 = toc
+F_step = @(t) (sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*theta_n_step',1))  +...
+     D_smorzata(1)*u_step(t);
+ % anche in questo caso sommo tutti i contributi dei singoli pendoli stando
+ % attento a non sommare molteplici volte il contributo costante della
+ % massa m0 che chiaramente deve essere considerato una sola volta
+
+ % ode 45 modificato 
+tic 
+options = odeset(MaxStep = 0.01, RelTol = 1e-6, AbsTol = 1e-9); 
+[t_n_step_m, theta_n_step_m] = ode45(odefun_step,tempo, x0, options);
+t45m = toc
+F_step_m = @(t) (sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*theta_n_step_m',1))  +...
+     D_smorzata(1)*u_step(t);
+
+% ode 78
+tic
+[t_n_step_78, theta_n_step_78] = ode78(odefun_step,tempo, x0);
+t_78 = toc
+F_step_78 = @(t) (sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*theta_n_step_78',1))  +...
+     D_smorzata(1)*u_step(t);
+
+figure
+plot(tempo,F_step(tempo),'LineWidth',1.5) 
+hold on
+plot(tempo, F_step_m(tempo),'LineWidth',1.5)
+hold on
+plot(tempo, F_step_78(tempo),'LineWidth',1.5)
+legend('ode45', 'ode45 modificato', 'ode78')
+xlabel('tempo (s)')
+ylabel('F_x (N)')
+
+
+err_abs_45 = abs(y_vals_step_esatta - F_step(tempo)); 
+max_err_45 = max(err_abs_45)
+
+
+err_abs_45m = abs(y_vals_step_esatta - F_step_m(tempo)); 
+max_err_45m = max(err_abs_45m) 
+
+err_abs_78 = abs(y_vals_step_esatta - F_step_78(tempo)); 
+max_err_78 = max(err_abs_78)
+
+figure
+plot(tempo, err_abs_45)
+xlabel('tempo (s)')
+ylabel('Errore assoluto')
+figure
+plot(tempo, err_abs_45m)
+xlabel('tempo (s)')
+ylabel('Errore assoluto')
+figure
+plot(tempo, err_abs_78)
+xlabel('tempo (s)')
+ylabel('Errore assoluto')
 
 %%  TASK 6 
 
