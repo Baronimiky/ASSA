@@ -619,6 +619,7 @@ plot(Model_1.tout,Model_1.force-y_vals_step_esatta','LineWidth', 2);
 figure(40)
 plot(Model_1.tout,Model_1.force-y_vals_heaviside_step','LineWidth', 2);
 
+<<<<<<< Updated upstream
 % function utilizzate:
 % function input impulso 
 function  u = input_pendulum_impulse(t, amp, t0)
@@ -643,3 +644,7 @@ if t>= t0
  end
  u = @(t) force; 
 end
+=======
+
+% FUNZIONI
+>>>>>>> Stashed changes
