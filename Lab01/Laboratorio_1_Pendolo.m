@@ -196,7 +196,7 @@ end
 figure
 plot(tempo,y_modal_impulse(1,:))
 
-% CICLO ITERAZIONE DELL'ERRORE     
+% Task 4 (CICLO ITERAZIONE DELL'ERRORE)    
 % (differenza tra due configurazioni successive normalizzate)
 
 clc
@@ -267,6 +267,8 @@ y_vec = zeros(n, length(tempo));
             disp('tolleranza non rispettata');
         end
 
+% Task 5 
+
 % soluzione con STEP di matlab 
 
 clc
@@ -298,6 +300,7 @@ for i = 1:j_ottimo
 end
 y_vals_heaviside_step = y_vals_heaviside_step + (-sum(m_n(1:j_ottimo)) - m0); % aggiungo il contributo
 % m0 una sola volta 
+
 figure
 plot(tempo,y_vals_heaviside_step)
 % soluzione esatta con expm STEP
@@ -320,27 +323,6 @@ figure
 plot(tempo, y_vals_step_esatta-iiiii')
 grid on
 exportgraphics(gcf, 'Confronto_step_esatta.pdf', 'ContentType', 'vector', 'BackgroundColor','none')
-
-% Forma modale STEP
-[V,Lambda] = eig(A_smorzata(1:2*j_ottimo,1:2*j_ottimo)); % V matrice di autovettori di A 
-   
-lambda = diag(Lambda) % lambda matrice diag di autovalori
-lambda_inv = diag(1./(lambda));
-V_inv = V\B_smorzata(1:2*j_ottimo,1);
-z = @(t) lambda_inv*((expm(lambda*t)-eye(2*j_ottimo)) * V_inv);
-y_modal_step= zeros(1,length(tempo));
-u_step = input_pendulum(tempo, 1, 0);
-for i = 1:length(tempo)
-    eLambda = diag(exp(lambda*tempo(i)));
-    y_modal_step(i) = sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*V*lambda_inv*...
-        (eLambda-eye(2*j_ottimo)) * V_inv,1)+ D_smorzata(1)*u_step(tempo(i));
-end
-% per y_modal_impulse la formula non è esplicitamente sulle slide ma l'ho
-% estrapolata per comparazione dalla forma generale: 
-% risposta imp = C*expm(A*t)*B
-% risposta step = C*A^-1 * (expm(A*t)-I)*B
-% dove expm(A*t) = V*expm(lambda*t)*V^(-1)
-plot(tempo,y_modal_step(1,:))
 
 % Metodo integrazione STEP
 x0 = zeros(2*j_ottimo, 1);  % considerando 8 pendoli devo assegnare le 8 
