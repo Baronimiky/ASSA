@@ -2,13 +2,6 @@ clear all
 close all
 clc
 
-% da pag 43 (fr. nat.) a pag. 48 (equazioni)
-% oss1 = la prima massa del primo pendolo con theta=0 è sotto il CoG
-% oss2= sistema di riferimento differente tra slide e doc; le formule fanno
-% riferimento al DOGE
-% guardare introduzione!!! todos
-
-
 rho = 1000; % density
 d = 1; 
 h = 1;
@@ -52,16 +45,6 @@ end
     
 % Task 2a
 
-% da valuttare se mettere tutti i calcoli a mano su LateX, potremmo
-% mostrarlo ad esempio per un singolo pendolo ( mostrare la costruzione
-% delle matrici A,B,C,D attraverso le solite derivate delle eq di moto 
-% e poi dire che la formulazione è estendibile a N pendoli) 
-
-% ATTENZIONE: il modal damping ratio non è direttamente il gamma, ma è
-% l'epsilon di mecc aerospaziale 2 quindi --->
-
-
-
 A_non_smorzata = zeros(2*n,2*n);
 B_non_smorzata = zeros(2*n,1);
 C_non_smorzata = zeros(n,2*n);
@@ -95,11 +78,6 @@ D_smorzata = D_non_smorzata;
 
 % Task 3
 
-% creo modello spazio degli stati attraverso sys e valuto nell'intervallo
-% la risposta all'impulso con la funzione integrata di matlab (considero
-% solo il primo pendolo come richiesto)
-% 
-
 sys = ss(A_smorzata(1:2,1:2),B_smorzata(1:2,1),C_smorzata(1,1:2),D_smorzata(1));
 tempo  = 0:0.01:10;
 
@@ -108,23 +86,6 @@ tempo  = 0:0.01:10;
 impulse(sys, tempo);
 [y_impulse, t_out] = impulse(sys, tempo);
 
-% MATLAB esclude il contributo di D (legato al delta di
-% Dirac) perche infintesimale , se si scrive impulse(...) senza []= si
-% ottiene il grafico in default
-
-% Alcune note su Impulse: cosa fa esattamente imp? risolve l'equazione
-% dinamica per l'uscita y(t) = C*expm(A*t)*B + D*u, ma matlab fornisce solo
-% la parte causale (per t>0) della risposta (trascura D*u che è applicato
-% proprio in t=0), esegue poi una discretizzazione temporale e poi integra 
-% con lsim: funzione MATLAB usata  per simulare la risposta di un sistema 
-% dinamico LTI a qualsiasi ingresso arbitrario nel dominio del tempo.
-
-% inoltre imp plotta una retta orizzontale puntinata che corrisponde alla
-% soluzione a regime (in questo caso ritorna alla conidzione di equilibrio)
-% una volta sul grafico con click destro e 'charachteristics' si possono
-% ottenere i valori del picco massimo e del tempo di transizione, tempo
-% necessario affinche la risposta arrivi al valore finale (con una
-% tolleranza del 2%) 
 
 -gamma(1)/l_n(1)^2 - gamma(1)/(m_n(1)*l_n(1)^2)*m0
 (m_n(1)+ m0)*g/l_n(1)
@@ -132,13 +93,8 @@ G1 = tf(sys)
 
 % SOLUZIONE ESATTA IMPULSE
 
-% confronto con soluzione analitica (intesa come esatta, non come a mano)
-% in realta questo è esattamente quello che fa impulse
 
 y = @(t) C_smorzata(1,1:2)*expm(A_smorzata(1:2,1:2)*t)*B_smorzata(1:2,1) % + D_smorzata(1)*Dirac;
-
-% il delta di Dirac, non è visualizzabile in matlab quindi anche in questo
-% caso consideriamo la parte causale della soluzione 
 
 y_vals_impulse = arrayfun(y, tempo); % Calcola y per ogni valore di tempo
 %y_vals_impulse(1) = y_vals_impulse(1) + D_smorzata(1); % per simulare il delta di Dirac ma non so quanto sia corretto
@@ -146,17 +102,12 @@ y_vals_impulse = arrayfun(y, tempo); % Calcola y per ogni valore di tempo
 figure(2)
 plot(tempo, y_vals_impulse);
 
-% METODO NUMERICO IMPULSE (come in STEP ho usato ode45 ma va verificato, 
-% anzi è sicuramente meglio se usiamo due metodi diversi)
-clc
+% METODO NUMERICO IMPULSE 
+
 u_impulse = input_pendulum_impulse(tempo, 1, 0.01);
 odefun_impulse = @(t,x) A_smorzata(1:2,1:2)*x; % B_smorzata(1:2,1)*u_impulse(t);
 % [t_n_impulse, theta_n_impulse] = ode45(odefun_impulse,tempo,
-% B_smorzata(1:2,1)); % scegliendo B come condizioni iniziali, si avvia il
-% sistema nella direzione dell'impulso, con 0,0 invece l'impulso (unitario)
-% non è sufficiente per inenscare il sistema oppure lo smorzamento è
-% eccessivo 
-
+% B_smorzata(1:2,1)); 
 % ode45 standard
 tic
 [t_n_impulse_45, theta_n_impulse_45] = ode45(odefun_impulse,tempo,B_smorzata(1:2,1));
@@ -230,27 +181,6 @@ title('Errore assoluto impulso ode78')
 
 % Forma modale di impulse 
 
-% cosa significa in questo problema usare la modal form? 
-% In questo caso stiamo modellando una matrice 2x2 che descrive un sistema
-% ad un grado di libertà quindi otterremo una coppia di autovalori
-% descrvienti uno stesso modo oscillatorio con frequenza naturale di circa
-% 6 rad/s ( |Im di autovalori| ).
-% Allora perche usare la modal form con solo un grado di libertà?
-% Attraverso l'analisi modale, si puo facilmente ricavare la
-% stabilità del sistema valutando la parte reale degli autovalori di A,
-% ricavare le frequenze naturali dei modi di oscillare, il tasso di smorzamento  
-% e permette di trascurare i modi non significativi per la dinamica complessiva 
-% ( ad esempio modi 'lenti' e 'veloci').
-
-% Procedura seguita: verifico che A sia diagonalizzabile, ovvero verifico
-% abbia autovalori distinti, calcolo poi autovettori di A e costruisco il
-% nuovo stato z(t) = V^(-1)*x(t) per poi ricavare la soluzione 
-% y(t) = C*V*z(t) da cui ottengo exp(A*t) in forma modale (slide 86)
-
-% inserendo questo risultato nelle equazioni slide 85 otteniamo la soluzione
-% ad un ingresso impulso e ingresso step
-
-
 [V,Lambda] = eig(A_smorzata(1:2,1:2)); % V matrice di autovettori di A 
    
 lambda = diag(Lambda) % lambda matrice diag di autovalori
@@ -271,23 +201,6 @@ plot(tempo,y_modal_impulse(1,:))
 
 % CICLO ITERAZIONE DELL'ERRORE     
 % (differenza tra due configurazioni successive normalizzate)
-
-% Vantaggi: valutazione globale dell'errore, ottengo quindi un'indicazione
-% della distanza complessiva tra le due soluzioni --> rispetto alla sola
-% differenza tra due termini, questo metodo è robusto contro le
-% fluttuazioni locali (non andando ad analizzare punto a punto).
-% Inoltre usare un errore relaitvo piuttoste che assoluto, permette di
-% rendere la misurazione indipendente dalla scala del problema 
-
-% si potrebbe in aggiunta ridurre ulteriormente la tolleranza per andare a
-% sopperire al progressivo sfasamento in realta abbiamo parlato con il
-% professore (tommaso) e ci ha detto che è molto piu complicato di quello
-% che appare e di non addentrarci. Ha detto di considerare solo il criterio
-% sull'ampiezza perche poi ci sarebbe anche il problema di come pesare i
-% due criteri in modo bilanciato ( si potrebbe fare una media ponderata ma
-% lasciamo stare) 
-% (inutile anche aggiungere qualche pendolo per 'sopperire' allo sfasamento. 
-
 
 clc
 tempo = 0:0.01:10;
@@ -381,6 +294,7 @@ exportgraphics(gcf, 'Risposta_step.pdf', 'ContentType', 'vector', 'BackgroundCol
 iiiii = step(sys_step,tempo);
 
 % SOLUZIONE HEAVISIDE STEP
+
 y_vals_heaviside_step = zeros(1,length(tempo));
 for i = 1:j_ottimo
     c = gamma(i) / (m_n(i)*l_n(i)^2); 
@@ -449,9 +363,6 @@ tic
 t_45 = toc
 F_step = @(t) (sum(C_smorzata(1:j_ottimo,1:2*j_ottimo)*theta_n_step',1))  +...
      D_smorzata(1)*u_step(t);
- % anche in questo caso sommo tutti i contributi dei singoli pendoli stando
- % attento a non sommare molteplici volte il contributo costante della
- % massa m0 che chiaramente deve essere considerato una sola volta
 
  % ode 45 modificato 
 tic 
@@ -571,21 +482,8 @@ j = j_ottimo;
       G_no_slosh = M_tot*s^2 % funzione di trasferimento è M*x_dot_dot/x 
       % in Laplace diventa M*s^2x/x quindi M*s^2
 
-      bode(G_no_slosh) % bode sembra avere pendenza +40 senza picchi di risonanza
-      % ha senso perche è come se si avesse tutta la massa concentrata in
-      % un blocco dentro al tank, quindi non ci sono oscillazioni pero non
-      % so, va approfondito/chiesto 
+      bode(G_no_slosh) 
 
-
-plot(tempo,y_vec(1,:),'r')
-hold on
-plot(tempo,y_vec(2,:),'b')
-plot(tempo,y_vec(3,:),'g')
-plot(tempo,y_vec(4,:),'k')
-plot(tempo,y_vec(5,:),'m')
-yline(1050)
-
-legend('1','2','3','4','5')
 
 % TASK 7 (Modello Simulink)
 x0 = [0 0 0 0 0 0 0 0]';
@@ -676,6 +574,5 @@ xdot1 = x2;
 xdot2 = -gamma(1)*x2 - w_n(1) * sin(x1) - (1/l_n(1))*cos(x1) * u;
 
 xdot = [xdot1; xdot2]; 
-% riflettere se ha senso mettere tempo di 10s 
 
 end
