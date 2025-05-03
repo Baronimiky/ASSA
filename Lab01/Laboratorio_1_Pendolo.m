@@ -93,11 +93,9 @@ G1 = tf(sys)
 
 % SOLUZIONE ESATTA IMPULSE
 
-
 y = @(t) C_smorzata(1,1:2)*expm(A_smorzata(1:2,1:2)*t)*B_smorzata(1:2,1) % + D_smorzata(1)*Dirac;
 
-y_vals_impulse = arrayfun(y, tempo); % Calcola y per ogni valore di tempo
-%y_vals_impulse(1) = y_vals_impulse(1) + D_smorzata(1); % per simulare il delta di Dirac ma non so quanto sia corretto
+y_vals_impulse = arrayfun(y, tempo); 
 
 figure(2)
 plot(tempo, y_vals_impulse);
@@ -106,8 +104,7 @@ plot(tempo, y_vals_impulse);
 
 u_impulse = input_pendulum_impulse(tempo, 1, 0.01);
 odefun_impulse = @(t,x) A_smorzata(1:2,1:2)*x; % B_smorzata(1:2,1)*u_impulse(t);
-% [t_n_impulse, theta_n_impulse] = ode45(odefun_impulse,tempo,
-% B_smorzata(1:2,1)); 
+
 % ode45 standard
 tic
 [t_n_impulse_45, theta_n_impulse_45] = ode45(odefun_impulse,tempo,B_smorzata(1:2,1));
@@ -244,16 +241,12 @@ y_vec = zeros(n, length(tempo));
             D_smorzata = D_non_smorzata;
         end 
 
-     
             y = @(t) C_smorzata*expm(A_smorzata*t)*B_smorzata;
-            
           
-
         for i = 1:length(tempo)
             y_vec(j,i) = sum (y(tempo(i)));
         end
 
-      
 
         if j > 1
         % Calcola l'errore relativo usando la norma L2
