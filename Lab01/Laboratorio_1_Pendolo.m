@@ -1,3 +1,4 @@
+%% CODE
 clear all
 close all
 clc
@@ -493,7 +494,7 @@ figure(40)
 plot(Model_1.tout,Model_1.force-y_vals_heaviside_step','LineWidth', 2);
 
 
-% function utilizzate:
+%% FUNCTIONS
 % function input impulso 
 function  u = input_pendulum_impulse(t, amp, t0)
     % 
