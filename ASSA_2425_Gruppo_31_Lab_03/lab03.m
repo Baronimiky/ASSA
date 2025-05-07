@@ -2,6 +2,7 @@
 clear 
 clc
 
+% dati 
 h_trim = 0;
 rho_h_trim = 1.225;
 S = 32.8;% [m^2]
@@ -11,17 +12,27 @@ c = 2.29; % [m]
 alpha_t = 0; % [°]
 delta_z_t = 0.378; % [m]
 V_kts = 120; % [kts]
-V = 61.733; % [m/s]
+V = 61.733; % [m/s] 
 g = 9.81; % [m/s^2]
 
 
-x0 = [0.05, 0.0, 10000];
+x0 = [0.5, -0.5, 500];  % vettore di guess iniziale, fsolve ha bisogno di un vettore di valori 
+% di stima iniziali per poi effettuare delle iterazioni fino a convergenza.
+% In teoria andrebbero messi valori che potrebbero essere reali (ho preso
+% spunto dalle soluzioni). Mentre una buona guess per T potrebbe essere il
+% drag, T=D. 
+% il vettore è x0 = [alpha delta T]
+
+% By default fsolve chooses the trust-region dogleg algorithm. pagina
+% mathworks di fsolve
+
+
 F_trim = @(x) trim_equations(x, m, I_yy, rho_h_trim, V, S,delta_z_t,alpha_t,c,g);
 [x_trim] = fsolve(F_trim, x0);
 
-alpha_trim = x_trim(1) * 180/pi;
-theta_trim = alpha_trim;
-delta_trim = x_trim(2) * 180/pi;
+alpha_trim = x_trim(1) * 180/pi; % trasformo in °
+theta_trim = alpha_trim; % essendo  gamma nullo (volo livellato) 
+delta_trim = x_trim(2) * 180/pi; % trasformo in °
 
 % Da x_trim ottengo alpha_trim delta_trim e T_trim, per ottenere u e w
 % sfrutto la conoscenze della velocità V: V = sqrt(u^2 + w^2) e l'ultima
@@ -66,10 +77,15 @@ function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
     CM = CM_0 + CM_alpha * alpha + CM_e * delta_e + CM_q * c/V * q;
 
     % Forze
-    D = 0.5 * rho * V^2 * S * CD;
-    M = 0.5 * rho * V^2 * S * c * CM;
-    L = 0.5 * rho * V^2 * S * CL;
-    S = 0;
+    D = 0.5 * rho * V^2 * S * CD; % Resistenza
+    M = 0.5 * rho * V^2 * S * c * CM; % Momento rispetto al CG
+    L = 0.5 * rho * V^2 * S * CL; % Portanza 
+    S = 0; % Devianza
+
+    % D S L sono validi eslcusivamente in asse wind, è quindi necessario
+    % trasportarli, attraverso una matrice di rotazione, in asse body,
+    % poiche le equazioni della dinamica longitudinale sono in tale sistema
+    % di riferimento
 
     f_A = [-D; S; -L]; % Forze aerodinamiche
 
