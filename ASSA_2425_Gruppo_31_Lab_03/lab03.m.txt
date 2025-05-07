@@ -1,0 +1,96 @@
+%% Task 1 (risoluzione equazioni)
+clear 
+clc
+
+h_trim = 0;
+rho_h_trim = 1.225;
+S = 32.8;% [m^2]
+m = 7484.4; % [kg]
+I_yy = 84309; % [kgm^2]
+c = 2.29; % [m]
+alpha_t = 0; % [°]
+delta_z_t = 0.378; % [m]
+V_kts = 120; % [kts]
+V = 61.733; % [m/s]
+g = 9.81; % [m/s^2]
+
+
+x0 = [0.05, 0.0, 10000];
+F_trim = @(x) trim_equations(x, m, I_yy, rho_h_trim, V, S,delta_z_t,alpha_t,c,g);
+[x_trim] = fsolve(F_trim, x0);
+
+alpha_trim = x_trim(1) * 180/pi;
+theta_trim = alpha_trim;
+delta_trim = x_trim(2) * 180/pi;
+
+% Da x_trim ottengo alpha_trim delta_trim e T_trim, per ottenere u e w
+% sfrutto la conoscenze della velocità V: V = sqrt(u^2 + w^2) e l'ultima
+% equazione della dinamica longitudinale: usin(alpha) = w cos(alpha),
+
+u = V / (sqrt(1+tan(x_trim(1))^2 )); 
+w = u* tan(x_trim(1));
+
+% Definisco le equazioni della dinamica longitudinale: 
+
+function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
+    % x = [alpha; delta_e; T]
+    alpha = x(1);
+    delta_e = x(2);
+    T = x(3);
+
+    % dalla quarta equazione:
+    q = 0; % theta_dot = q
+
+    % dalla definizione degli angoli: theta = gamma + alpha, ma gamma = 0
+    % (volo livellato, traiettoria // all'orizzonte)
+
+    theta = alpha;
+
+    % Coefficienti aerodinamici
+    CL_0   = 0.895;   % termine costante di portanza
+    CL_alpha = 5.01;  % CL derivato rispetto all'angolo d'attacco
+    CL_e   = 0.722;   % CL derivato rispetto alla deflessione dell'equilibratore
+    
+    CD_0   = 0.177;   % drag parassita
+    CD_alpha = 0.232; % drag lineare con alpha
+    CD_alpha2 = 1.393; % drag quadratico con alpha
+    
+    CM_0   = -0.046;   % momento a zero alpha
+    CM_alpha = -1.087; % CM derivato del momento rispetto a alpha
+    CM_q   = -7.055;   % CM derivato rispetto al tasso di variazione di alpha
+    CM_e   = -1.88;    % CM derivato del momento rispetto a delta_e
+    
+    % Coefficienti
+    CL = CL_0 + CL_alpha * alpha + CL_e * delta_e;
+    CD = CD_0 + CD_alpha * alpha + CD_alpha2 * alpha^2;
+    CM = CM_0 + CM_alpha * alpha + CM_e * delta_e + CM_q * c/V * q;
+
+    % Forze
+    D = 0.5 * rho * V^2 * S * CD;
+    M = 0.5 * rho * V^2 * S * c * CM;
+    L = 0.5 * rho * V^2 * S * CL;
+    S = 0;
+
+    f_A = [-D; S; -L]; % Forze aerodinamiche
+
+    % Matrice di passaggio asse body-wind
+    C_bw = [cos(alpha) 0 -sin(alpha); 0 1 0; sin(alpha) 0 cos(alpha)];
+
+    % Forze aerodinamiche in asse body 
+    X_A = [1 0 0] * (C_bw*f_A);
+    X_T = T*cos(alpha_t);
+    Z_A = [0 0 1] * (C_bw*f_A);
+    Z_T = T*sin(alpha_t);
+    M_A = M;
+    M_T = delta_z_t * T;
+
+    % Equazioni dinamica longitudinale
+    
+    eq1 = -g*sin(theta) + 1/m * X_A + 1/m*X_T;
+    eq2 = g*cos(theta) + 1/m * Z_A + 1/m *Z_T;
+    eq3 = 1/I_yy * (M_A+M_T);
+
+   F = [eq1, eq2, eq3];
+
+end
+
