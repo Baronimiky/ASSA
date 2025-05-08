@@ -19,14 +19,14 @@ function [xdot] = long_dyn(x,t, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,
     D = 0.5 * rho * V^2 * S * CD; % Resistenza
     M = 0.5 * rho * V^2 * S * c * CM; % Momento rispetto al CG
     L = 0.5 * rho * V^2 * S * CL; % Portanza 
-    Sd = 0; % Devianza
+    S = 0; % Devianza
 
     % D S L sono validi eslcusivamente in asse wind, è quindi necessario
     % trasportarli, attraverso una matrice di rotazione, in asse body,
     % poiche le equazioni della dinamica longitudinale sono in tale sistema
     % di riferimento
 
-    f_A = [-D; Sd; -L]; % Forze aerodinamiche
+    f_A = [-D; S; -L]; % Forze aerodinamiche
 
     % Matrice di passaggio asse body-wind
     C_bw = [cos(alpha) 0 -sin(alpha); 0 1 0; sin(alpha) 0 cos(alpha)];
