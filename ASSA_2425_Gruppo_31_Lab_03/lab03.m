@@ -110,3 +110,30 @@ function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
 
 end
 
+% Task 2 
+clc
+
+coeff = struct();  
+coeff.CL_0   = 0.895;   % termine costante di portanza
+coeff.CL_alpha = 5.01;  % CL derivato rispetto all'angolo d'attacco
+coeff.CL_e   = 0.722;   % CL derivato rispetto alla deflessione dell'equilibratore
+    
+coeff.CD_0   = 0.177;   % drag parassita
+coeff.CD_alpha = 0.232; % drag lineare con alpha
+coeff.CD_alpha2 = 1.393; % drag quadratico con alpha
+    
+coeff.CM_0   = -0.046;   % momento a zero alpha
+coeff.CM_alpha = -1.087; % CM derivato del momento rispetto a alpha
+coeff.CM_q   = -7.055;   % CM derivato rispetto al tasso di variazione di alpha
+coeff.CM_e   = -1.88; 
+
+tempo = 0:0.01:5; 
+x0_ver = [u, w, 0, theta_trim, h_trim];
+T_trim = x_trim(3);
+
+Odefun = @(t,x) long_dyn(x,t, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff,delta_trim,T_trim);
+
+[t_out, x_out] = ode45(Odefun, tempo, x0_ver);
+
+plot(tempo,x_out(:,1))
+
