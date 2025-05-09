@@ -208,3 +208,31 @@ function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,
 
 
 end
+% Task 3 
+clc
+tempo2 = 0:0.01:100; 
+
+diff_delta_e = -1; % [°]
+
+function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
+
+if t>=5 && t<=10 
+    delta_e3 =  delta_trim + diff_delta_e; 
+else 
+    delta_e3 =  delta_trim;
+end
+
+end
+
+
+Odefun3 = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff, ...
+                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
+                          T_trim);
+
+[t_out3, x_out3] = ode45(Odefun3, tempo2, x0_ver);
+
+
+for i = 1:5
+   figure(i)
+   plot(tempo2,x_out3(:,i)); 
+end
