@@ -135,7 +135,25 @@ Odefun = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,c
 
 [t_out, x_out] = ode45(Odefun, tempo, x0_ver);
 
-plot(tempo,x_out(:,1))
+plot(tempo, x_out(:,1), 'LineWidth', 2);  % Usa direttamente x_out
+grid on
+
+% Calcola la media dei dati per centrare l'asse Y attorno ai dati
+y_center = mean(x_out(:,1));        % Media dei dati
+range_fixed = 0.1;                   % Imposta il range fisso dell'asse Y (±0.05)
+step = 0.05;                         % Step tra le tacche (0.05)
+
+% Calcola i limiti dell'asse Y
+y_min = y_center - range_fixed / 2;
+y_max = y_center + range_fixed / 2;
+
+% Imposta le tacche ogni 0.05
+yt = y_min:step:y_max;
+
+% Modifica l'asse Y
+ylim([y_min y_max]);  % Limiti fissi
+yticks(yt);            % Tacche ogni 0.05
+yline(0, '--k');       % Aggiungi linea orizzontale a y=0 (facoltativo)
 
 
 function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,delta_e,T)
