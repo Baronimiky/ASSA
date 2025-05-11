@@ -208,6 +208,7 @@ function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,
 
 
 end
+
 % Task 3 
 clc
 tempo2 = 0:0.01:100; 
