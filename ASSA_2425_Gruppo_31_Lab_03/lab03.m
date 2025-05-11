@@ -236,3 +236,64 @@ for i = 1:5
    figure(i)
    plot(tempo2,x_out3(:,i)); 
 end
+
+%% task 4 linearizzazione
+clc
+
+x0_ver_lin = [61.7263;0.9078;0;0.0147];
+
+clc
+tempo2 = 0:0.1:100;
+delta_T = 0;
+
+
+Odefun4 = @(t,x) long_dyn_lin(x,t,rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff, ...
+                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
+                          T_trim);
+
+[t_out4, x_out4] = ode45(Odefun4, tempo2, x0_ver_lin);
+
+
+for i = 1:4
+   figure
+   plot(tempo2,x0_ver_lin(i)+x_out4(:,i)); 
+end
+
+function [xdot] = long_dyn_lin(x,t, rho, V, S,delta_z_t, alpha_t,c,g,coeff,delta_e,T)
+
+    Xu     = -0.057076461;
+    Xw     =  0.125051144;
+    Xq     =  0.00;
+    Xwdot  =  0.00;
+
+    Zu     = -0.30507998;
+    Zw     = -0.86334716;
+    Zq     =  0.00;
+    Zwdot  =  0.00;
+
+    Mu     = -0.0014736;
+    Mw     = -0.036668742;
+    Mq     = -0.5442436;
+    Mwdot  =  0.00;
+
+    Xde    =  0.00;
+    Zde    = -7.38503134;
+    Mde    = -3.90965145;
+
+    theta_trim = 0.8426;
+    q_trim = 0;
+    w_trim = 0.9078;
+
+    % Forze aerodinamiche in asse body 
+    Xt = T*cos(alpha_t);
+    Zt = T*sin(alpha_t);
+    Mt = delta_z_t * T;
+
+
+  A = [Xu Xw-q_trim -w_trim -g*cos(theta_trim*pi/180); (q_trim-Zu) (Zw) (Zq) (-g*cos(theta_trim*pi/180)); ...
+    Mu Mw Mq 0; 0 0 1 0];
+   B = [Xde Xt; Zde Zt; Mde Mt; 0 0]; 
+
+   xdot = A*x + B*[delta_e; 0];
+
+end
