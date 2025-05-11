@@ -244,15 +244,15 @@ clc
 x0_ver_lin = [61.7263;0.9078;0;0.0147];
 
 clc
-tempo2 = 0:0.1:100;
+tempo2 = 0:0.1:1000;
 delta_T = 0;
 
 
 Odefun4 = @(t,x) long_dyn_lin(x,t,rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff, ...
                           pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
                           T_trim);
-
-[t_out4, x_out4] = ode45(Odefun4, tempo2, x0_ver_lin);
+x0 = [0;0;0;0]
+[t_out4, x_out4] = ode45(Odefun4, tempo2, x0);
 
 
 for i = 1:4
@@ -284,14 +284,15 @@ function [xdot] = long_dyn_lin(x,t, rho, V, S,delta_z_t, alpha_t,c,g,coeff,delta
     theta_trim = 0.8426;
     q_trim = 0;
     w_trim = 0.9078;
+    u_trim = 61.7263
 
     % Forze aerodinamiche in asse body 
-    Xt = T*cos(alpha_t);
+    Xt = cos(alpha_t);
     Zt = T*sin(alpha_t);
-    Mt = delta_z_t * T;
+    Mt = delta_z_t;
 
 
-  A = [Xu Xw-q_trim -w_trim -g*cos(theta_trim*pi/180); (q_trim-Zu) (Zw) (Zq) (-g*cos(theta_trim*pi/180)); ...
+  A = [Xu Xw-q_trim -w_trim -g*cos(theta_trim*pi/180); (q_trim+Zu) (Zw) (Zq+u_trim) (-g*sin(theta_trim*pi/180)); ...
     Mu Mw Mq 0; 0 0 1 0];
    B = [Xde Xt; Zde Zt; Mde Mt; 0 0]; 
 
