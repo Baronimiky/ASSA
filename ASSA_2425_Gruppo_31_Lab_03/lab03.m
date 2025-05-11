@@ -110,3 +110,129 @@ function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
 
 end
 
+% Task 2 
+clc
+
+coeff = struct();  
+coeff.CL_0   = 0.895;   % termine costante di portanza
+coeff.CL_alpha = 5.01;  % CL derivato rispetto all'angolo d'attacco
+coeff.CL_e   = 0.722;   % CL derivato rispetto alla deflessione dell'equilibratore
+    
+coeff.CD_0   = 0.177;   % drag parassita
+coeff.CD_alpha = 0.232; % drag lineare con alpha
+coeff.CD_alpha2 = 1.393; % drag quadratico con alpha
+    
+coeff.CM_0   = -0.046;   % momento a zero alpha
+coeff.CM_alpha = -1.087; % CM derivato del momento rispetto a alpha
+coeff.CM_q   = -7.055;   % CM derivato rispetto al tasso di variazione di alpha
+coeff.CM_e   = -1.88; 
+
+tempo = 0:0.01:5; 
+x0_ver = [u; w; 0; theta_trim*pi/180; h_trim];
+T_trim = x_trim(3);
+
+Odefun = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff,delta_trim*pi/180,T_trim);
+
+[t_out, x_out] = ode45(Odefun, tempo, x0_ver);
+
+plot(tempo, x_out(:,1), 'LineWidth', 2);  % Usa direttamente x_out
+grid on
+
+% Calcola la media dei dati per centrare l'asse Y attorno ai dati
+y_center = mean(x_out(:,1));        % Media dei dati
+range_fixed = 0.1;                   % Imposta il range fisso dell'asse Y (±0.05)
+step = 0.05;                         % Step tra le tacche (0.05)
+
+% Calcola i limiti dell'asse Y
+y_min = y_center - range_fixed / 2;
+y_max = y_center + range_fixed / 2;
+
+% Imposta le tacche ogni 0.05
+yt = y_min:step:y_max;
+
+% Modifica l'asse Y
+ylim([y_min y_max]);  % Limiti fissi
+yticks(yt);            % Tacche ogni 0.05
+yline(0, '--k');       % Aggiungi linea orizzontale a y=0 (facoltativo)
+
+
+function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,delta_e,T)
+
+    u = x(1); 
+    w = x(2);
+    q = x(3);
+    theta = x(4);
+    h = x(5);
+
+    alpha = theta; %theta = gamma + alpha ma gamma = 0
+    
+    
+    % coefficienti 
+    CL = coeff.CL_0 + coeff.CL_alpha * alpha + coeff.CL_e * delta_e;
+    CD = coeff.CD_0 + coeff.CD_alpha * alpha + coeff.CD_alpha2 * alpha^2;
+    CM = coeff.CM_0 + coeff.CM_alpha * alpha + coeff.CM_e * delta_e + coeff.CM_q * c/V * q;
+
+
+    % Forze
+    D = 0.5 * rho * V^2 * S * CD; % Resistenza
+    M = 0.5 * rho * V^2 * S * c * CM; % Momento rispetto al CG
+    L = 0.5 * rho * V^2 * S * CL; % Portanza 
+    S = 0; % Devianza
+
+    % D S L sono validi eslcusivamente in asse wind, è quindi necessario
+    % trasportarli, attraverso una matrice di rotazione, in asse body,
+    % poiche le equazioni della dinamica longitudinale sono in tale sistema
+    % di riferimento
+
+    f_A = [-D; S; -L]; % Forze aerodinamiche
+
+    % Matrice di passaggio asse body-wind
+    C_bw = [cos(alpha) 0 -sin(alpha); 0 1 0; sin(alpha) 0 cos(alpha)];
+
+    % Forze aerodinamiche in asse body 
+    X_A = [1 0 0] * (C_bw*f_A);
+    X_T = T*cos(alpha_t);
+    Z_A = [0 0 1] * (C_bw*f_A);
+    Z_T = T*sin(alpha_t);
+    M_A = M;
+    M_T = delta_z_t * T;
+
+    
+    xdot1 = -q*w -g*sin(theta) + 1/m * X_A + 1/m*X_T; 
+    xdot2 = q*u + g*cos(theta) + 1/m * Z_A + 1/m *Z_T;
+    xdot3 = 1/I_yy * (M_A + M_T);
+    xdot4 = q; 
+    xdot5 = u * sin(theta) - w* cos(theta); 
+
+    xdot= [xdot1; xdot2; xdot3; xdot4;xdot5];
+
+
+end
+% Task 3 
+clc
+tempo2 = 0:0.01:100; 
+
+diff_delta_e = -1; % [°]
+
+function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
+
+if t>=5 && t<=10 
+    delta_e3 =  delta_trim + diff_delta_e; 
+else 
+    delta_e3 =  delta_trim;
+end
+
+end
+
+
+Odefun3 = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff, ...
+                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
+                          T_trim);
+
+[t_out3, x_out3] = ode45(Odefun3, tempo2, x0_ver);
+
+
+for i = 1:5
+   figure(i)
+   plot(tempo2,x_out3(:,i)); 
+end
