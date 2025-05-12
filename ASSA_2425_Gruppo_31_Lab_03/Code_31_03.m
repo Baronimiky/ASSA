@@ -5,7 +5,7 @@ clc
 % dati 
 h_trim = 0;
 rho_h_trim = 1.225;
-S = 32.8;% [m^2]
+S = 32.8; % [m^2]
 m = 7484.4; % [kg]
 I_yy = 84309; % [kgm^2]
 c = 2.29; % [m]
@@ -217,16 +217,16 @@ diff_delta_e = -1; % [°]
 
 function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
 
-if t>=5 && t<=10 
-    delta_e3 =  delta_trim + diff_delta_e; 
-else 
-    delta_e3 =  delta_trim;
-end
+    if t>=5 && t<=10 
+        delta_e3 =  delta_trim + diff_delta_e; 
+    else 
+        delta_e3 =  delta_trim;
+    end
 
 end
 
 
-Odefun3 = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff, ...
+Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c, g, coeff, ...
                           pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
                           T_trim);
 
@@ -238,7 +238,12 @@ for i = 1:5
    plot(tempo2,x_out3(:,i)); 
 end
 
-%% task 4 linearizzazione
+
+% Task 4
+
+sim_Lab3_4 = sim('Model_31_03_1.slx');
+
+% task 5 linearizzazione
 clc
 
 x0_ver_lin = [61.7263;0.9078;0;0.0147;0];
