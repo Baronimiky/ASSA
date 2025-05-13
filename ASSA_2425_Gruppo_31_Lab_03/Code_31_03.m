@@ -43,6 +43,109 @@ w = u* tan(x_trim(1));
 
 % Definisco le equazioni della dinamica longitudinale: 
 
+% Task 2 
+clc
+
+coeff = struct();  
+coeff.CL_0   = 0.895;   % termine costante di portanza
+coeff.CL_alpha = 5.01;  % CL derivato rispetto all'angolo d'attacco
+coeff.CL_e   = 0.722;   % CL derivato rispetto alla deflessione dell'equilibratore
+    
+coeff.CD_0   = 0.177;   % drag parassita
+coeff.CD_alpha = 0.232; % drag lineare con alpha
+coeff.CD_alpha2 = 1.393; % drag quadratico con alpha
+    
+coeff.CM_0   = -0.046;   % momento a zero alpha
+coeff.CM_alpha = -1.087; % CM derivato del momento rispetto a alpha
+coeff.CM_q   = -7.055;   % CM derivato rispetto al tasso di variazione di alpha
+coeff.CM_e   = -1.88; 
+
+tempo = 0:0.01:5; 
+x0_ver = [u; w; 0; theta_trim*pi/180; h_trim];
+T_trim = x_trim(3);
+
+Odefun = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff,delta_trim*pi/180,T_trim);
+
+[t_out, x_out] = ode45(Odefun, tempo, x0_ver);
+
+plot(tempo, x_out(:,1), 'LineWidth', 2);  % Usa direttamente x_out
+grid on
+
+% Calcola la media dei dati per centrare l'asse Y attorno ai dati
+y_center = mean(x_out(:,1));        % Media dei dati
+range_fixed = 0.1;                   % Imposta il range fisso dell'asse Y (±0.05)
+step = 0.05;                         % Step tra le tacche (0.05)
+
+% Calcola i limiti dell'asse Y
+y_min = y_center - range_fixed / 2;
+y_max = y_center + range_fixed / 2;
+
+% Imposta le tacche ogni 0.05
+yt = y_min:step:y_max;
+
+% Modifica l'asse Y
+ylim([y_min y_max]);  % Limiti fissi
+yticks(yt);            % Tacche ogni 0.05
+yline(0, '--k');       % Aggiungi linea orizzontale a y=0 (facoltativo)
+
+
+
+
+% Task 3 
+clc
+tempo2 = 0:0.01:100; 
+
+diff_delta_e = -1; % [°]
+
+
+
+Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c, g, coeff, ...
+                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
+                          T_trim);
+
+[t_out3, x_out3] = ode45(Odefun3, tempo2, x0_ver);
+
+
+for i = 1:5
+   figure(i)
+   plot(tempo2,x_out3(:,i)); 
+end
+
+
+
+
+% Task 4
+
+sim_Lab3_4 = sim('Model_31_03_1.slx');
+
+
+
+% task 5 linearizzazione
+clc
+
+x0_ver_lin = [61.7263;0.9078;0;0.0147;0]; % [u,w,q,theta,h]
+
+clc
+tempo2 = 0:0.1:100;
+delta_T = 0;
+
+
+Odefun4 = @(t,x) long_dyn_lin(x,t,delta_z_t, alpha_t,g, ...
+                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
+                          T_trim);
+x0 = [0;0;0;0;0];
+[t_out4, x_out4] = ode45(Odefun4, tempo2, x0);
+
+
+for i = 1:5
+   figure
+   plot(tempo2,x0_ver_lin(i)+x_out4(:,i)); 
+end
+
+% functions 
+
+% Task 1
+
 function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
     % x = [alpha; delta_e; T]
     alpha = x(1);
@@ -110,52 +213,8 @@ function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
 
 end
 
-% Task 2 
-clc
 
-coeff = struct();  
-coeff.CL_0   = 0.895;   % termine costante di portanza
-coeff.CL_alpha = 5.01;  % CL derivato rispetto all'angolo d'attacco
-coeff.CL_e   = 0.722;   % CL derivato rispetto alla deflessione dell'equilibratore
-    
-coeff.CD_0   = 0.177;   % drag parassita
-coeff.CD_alpha = 0.232; % drag lineare con alpha
-coeff.CD_alpha2 = 1.393; % drag quadratico con alpha
-    
-coeff.CM_0   = -0.046;   % momento a zero alpha
-coeff.CM_alpha = -1.087; % CM derivato del momento rispetto a alpha
-coeff.CM_q   = -7.055;   % CM derivato rispetto al tasso di variazione di alpha
-coeff.CM_e   = -1.88; 
-
-tempo = 0:0.01:5; 
-x0_ver = [u; w; 0; theta_trim*pi/180; h_trim];
-T_trim = x_trim(3);
-
-Odefun = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff,delta_trim*pi/180,T_trim);
-
-[t_out, x_out] = ode45(Odefun, tempo, x0_ver);
-
-plot(tempo, x_out(:,1), 'LineWidth', 2);  % Usa direttamente x_out
-grid on
-
-% Calcola la media dei dati per centrare l'asse Y attorno ai dati
-y_center = mean(x_out(:,1));        % Media dei dati
-range_fixed = 0.1;                   % Imposta il range fisso dell'asse Y (±0.05)
-step = 0.05;                         % Step tra le tacche (0.05)
-
-% Calcola i limiti dell'asse Y
-y_min = y_center - range_fixed / 2;
-y_max = y_center + range_fixed / 2;
-
-% Imposta le tacche ogni 0.05
-yt = y_min:step:y_max;
-
-% Modifica l'asse Y
-ylim([y_min y_max]);  % Limiti fissi
-yticks(yt);            % Tacche ogni 0.05
-yline(0, '--k');       % Aggiungi linea orizzontale a y=0 (facoltativo)
-
-
+% Task 2
 function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,delta_e,T)
 
     u = x(1); 
@@ -209,11 +268,6 @@ function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,
 
 end
 
-% Task 3 
-clc
-tempo2 = 0:0.01:100; 
-
-diff_delta_e = -1; % [°]
 
 function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
 
@@ -226,44 +280,7 @@ function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
 end
 
 
-Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c, g, coeff, ...
-                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
-                          T_trim);
-
-[t_out3, x_out3] = ode45(Odefun3, tempo2, x0_ver);
-
-
-for i = 1:5
-   figure(i)
-   plot(tempo2,x_out3(:,i)); 
-end
-
-
-% Task 4
-
-sim_Lab3_4 = sim('Model_31_03_1.slx');
-
-% task 5 linearizzazione
-clc
-
-x0_ver_lin = [61.7263;0.9078;0;0.0147;0];
-
-clc
-tempo2 = 0:0.1:100;
-delta_T = 0;
-
-
-Odefun4 = @(t,x) long_dyn_lin(x,t,delta_z_t, alpha_t,g, ...
-                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
-                          T_trim);
-x0 = [0;0;0;0;0];
-[t_out4, x_out4] = ode45(Odefun4, tempo2, x0);
-
-
-for i = 1:5
-   figure
-   plot(tempo2,x0_ver_lin(i)+x_out4(:,i)); 
-end
+% Task 5
 
 function [xdot] = long_dyn_lin(x,t,delta_z_t, alpha_t,g,delta_e,T)
 
