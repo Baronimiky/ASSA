@@ -152,7 +152,112 @@ i = 5
  hold on
  plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
 %
+%% task 6
+clc
 
+    Xu     = -0.057076461;
+    Xw     =  0.125051144;
+    Xq     =  0.00;
+    Xwdot  =  0.00;
+
+    Zu     = -0.30507998;
+    Zw     = -0.86334716;
+    Zq     =  0.00;
+    Zwdot  =  0.00;
+
+    Mu     = -0.0014736;
+    Mw     = -0.036668742;
+    Mq     = -0.5442436;
+    Mwdot  =  0.00;
+
+    Xde    =  0.00;
+    Zde    = -7.38503134;
+    Mde    = -3.90965145;
+
+    theta_trim = 0.8426;
+    q_trim = 0;
+    w_trim = 0.9051;
+    u_trim = 61.7334;
+
+    % Forze aerodinamiche in asse body 
+    Xt = cos(alpha_t);
+    Zt = sin(alpha_t);
+    Mt = delta_z_t;
+
+ A = [Xu Xw-q_trim -w_trim -g*cos(theta_trim*pi/180) 0;
+      (q_trim+Zu) (Zw) (Zq+u_trim) (-g*sin(theta_trim*pi/180)) 0 ; 
+        Mu Mw Mq 0 0;
+        0 0 1 0 0;
+        sin(theta_trim*pi/180) -cos(theta_trim*pi/180) 0 u_trim*cos(theta_trim*pi/180)+w_trim*sin(theta_trim*pi/180) 0];
+ B = [Xde Xt; Zde Zt; Mde Mt; 0 0; 0 0]; 
+ C = [1 0 0 0 0; 0 1 0 0 0; 0 0 1 0 0; 0 0 0 1 0; 0 0 0 0 1];
+ D = 0;
+
+states = {'u' 'w' 'q' 'theta' 'h'};
+inputs = {'delta_e' 'T'};
+outputs = {'u' 'w' 'q' 'theta' 'h'};
+
+sys = ss(A,B,C,D,'statename',states,'inputname',inputs,'outputname',outputs);
+
+[wn, psi, autoval] = damp(sys); % frequenza naturale, smorzamento e autovalori
+
+G = tf(sys);
+
+for i=1:5
+figure;
+
+% 🔧 Allarga la figura per spazio laterale
+set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.6 0.7]);
+
+% Calcola poli e zeri
+[p, z] = pzmap(G(i,1));
+
+% Traccia poli e zeri
+h1 = plot(real(p), imag(p), 'xr', 'MarkerSize', 12, 'LineWidth', 2); hold on;
+h2 = plot(real(z), imag(z), 'ob', 'MarkerSize', 12, 'LineWidth', 2);
+
+% Imposta limiti PRIMA
+xlim([-15 15]);
+ylim([-10 10]);
+drawnow;  % forza il rendering per aggiornare i limiti
+
+% Salva limiti reali
+xl = xlim;
+yl = ylim;
+
+% Usa plot per disegnare gli assi (più robusto)
+plot(xl, [0 0], 'k-', 'LineWidth', 1);  % asse x
+plot([0 0], yl, 'k-', 'LineWidth', 1);  % asse y
+
+% Griglia & legenda
+axis equal;
+grid on;
+xlabel('Re');
+ylabel('Im');
+ingresso = G.InputName{1,1};
+uscita = G.OutputName{i,1};
+title(sprintf('Poli e Zeri della G(s) da "%s" a "%s"', ingresso, uscita));
+legend([h1, h2], {'Poli', 'Zeri'}, 'Location', 'northeast');
+
+% Crea testo con poli/zeri
+poli_str = arrayfun(@(x) sprintf('%.2f %+.2fi', real(x), imag(x)), p, 'UniformOutput', false);
+zeri_str = arrayfun(@(x) sprintf('%.2f %+.2fi', real(x), imag(x)), z, 'UniformOutput', false);
+testo = ['Poli:'; poli_str; {''}; 'Zeri:'; zeri_str];
+
+% Annotation ben spostata a destra, ma più stretta
+annotation('textbox', [0.7 0.15 0.25 0.7], ...  % Ridotto a 0.7
+    'String', testo, ...
+    'FitBoxToText', 'on', ...
+    'BackgroundColor', 'white', ...
+    'EdgeColor', 'black', ...
+    'FontSize', 10);
+hold off;
+    figure
+    bode(G(i,1));
+    h = findall(gcf,'Type','line');
+    set(h, 'LineWidth', 2);
+    grid on 
+end
 
 % functions 
 
