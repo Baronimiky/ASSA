@@ -122,7 +122,7 @@ sim_Lab3_4 = sim('Model_31_03_1.slx');
 
 
 
-% task 5 linearizzazione
+%% task 5 linearizzazione
 
 
 x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
@@ -144,7 +144,7 @@ end
 
 %
 % 
-% grafico il confronto molto rapidamente e  molto male
+% grafico il confronto molto rapidamente e molto male
  figure
 i = 5
 
@@ -258,6 +258,11 @@ hold off;
     set(h, 'LineWidth', 2);
     grid on 
 end
+
+% task 8 (simulink linearizzato)
+
+sim_Lab3_8 = sim('Model_31_03_2.slx');
+
 
 % functions 
 
