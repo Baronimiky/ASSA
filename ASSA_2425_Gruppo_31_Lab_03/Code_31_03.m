@@ -1,10 +1,12 @@
 %% Task 1 (risoluzione equazioni)
 clear 
+close all
 clc
 
 % dati 
 h_trim = 0;
 rho_h_trim = 1.225;
+
 S = 32.8; % [m^2]
 m = 7484.4; % [kg]
 I_yy = 84309; % [kgm^2]
@@ -12,7 +14,7 @@ c = 2.29; % [m]
 alpha_t = 0; % [°]
 delta_z_t = 0.378; % [m]
 V_kts = 120; % [kts]
-V = 61.733; % [m/s] 
+V = 61.74; % [m/s] 
 g = 9.81; % [m/s^2]
 
 
@@ -34,6 +36,7 @@ alpha_trim = x_trim(1) * 180/pi; % trasformo in °
 theta_trim = alpha_trim; % essendo  gamma nullo (volo livellato) 
 delta_trim = x_trim(2) * 180/pi; % trasformo in °
 
+
 % Da x_trim ottengo alpha_trim delta_trim e T_trim, per ottenere u e w
 % sfrutto la conoscenze della velocità V: V = sqrt(u^2 + w^2) e l'ultima
 % equazione della dinamica longitudinale: usin(alpha) = w cos(alpha),
@@ -44,7 +47,6 @@ w = u* tan(x_trim(1));
 % Definisco le equazioni della dinamica longitudinale: 
 
 % Task 2 
-clc
 
 coeff = struct();  
 coeff.CL_0   = 0.895;   % termine costante di portanza
@@ -66,7 +68,7 @@ T_trim = x_trim(3);
 
 Odefun = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,coeff,delta_trim*pi/180,T_trim);
 
-[t_out, x_out] = ode45(Odefun, tempo, x0_ver);
+[~, x_out] = ode45(Odefun, tempo, x0_ver);
 
 plot(tempo, x_out(:,1), 'LineWidth', 2);  % Usa direttamente x_out
 grid on
@@ -92,8 +94,8 @@ yline(0, '--k');       % Aggiungi linea orizzontale a y=0 (facoltativo)
 
 
 % Task 3 
-clc
-tempo2 = 0:0.01:100; 
+
+tempo2 = 0:0.1:300; 
 
 diff_delta_e = -1; % [°]
 
@@ -121,26 +123,36 @@ sim_Lab3_4 = sim('Model_31_03_1.slx');
 
 
 % task 5 linearizzazione
-clc
-
-x0_ver_lin = [61.7263;0.9078;0;0.0147;0]; % [u,w,q,theta,h]
-
-clc
-tempo2 = 0:0.1:100;
-delta_T = 0;
 
 
-Odefun4 = @(t,x) long_dyn_lin(x,t,delta_z_t, alpha_t,g, ...
-                          pos_equilibratore(t, delta_trim*pi/180, diff_delta_e*pi/180), ...
-                          T_trim);
+x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
+
+
+tempo2 = 0:0.1:300;
+
+
+Odefun4 = @(t,x) long_dyn_lin(t,x,delta_z_t, alpha_t,g, ...
+                          diff_delta_e*pi/180);
 x0 = [0;0;0;0;0];
-[t_out4, x_out4] = ode45(Odefun4, tempo2, x0);
+[t_out5, x_out5] = ode45(Odefun4, tempo2, x0);
 
 
-for i = 1:5
+for i = 1:4
    figure
-   plot(tempo2,x0_ver_lin(i)+x_out4(:,i)); 
+   plot(t_out5,x0_ver_lin(i)+x_out5(:,i)); 
 end
+
+%
+% 
+% grafico il confronto molto rapidamente e  molto male
+ figure
+i = 5
+
+ plot(t_out5,x_out5(:,i)); 
+ hold on
+ plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
+%
+
 
 % functions 
 
@@ -223,9 +235,9 @@ function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,
     theta = x(4);
     h = x(5);
 
-    alpha = theta; %theta = gamma + alpha ma gamma = 0
-    
-    
+    alpha = atan(x(2)/x(1)); 
+    V = sqrt((x(1))^2 + (x(2))^2);
+
     % coefficienti 
     CL = coeff.CL_0 + coeff.CL_alpha * alpha + coeff.CL_e * delta_e;
     CD = coeff.CD_0 + coeff.CD_alpha * alpha + coeff.CD_alpha2 * alpha^2;
@@ -272,18 +284,17 @@ end
 function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
 
     if t>=5 && t<=10 
-        delta_e3 =  delta_trim + diff_delta_e; 
+        delta_e3 =  delta_trim + diff_delta_e;
     else 
         delta_e3 =  delta_trim;
     end
-
 end
 
 
 % Task 5
 
-function [xdot] = long_dyn_lin(x,t,delta_z_t, alpha_t,g,delta_e,T)
-
+function [xdot] = long_dyn_lin(t,x,delta_z_t, alpha_t,g,diff_delta_e)
+    
     Xu     = -0.057076461;
     Xw     =  0.125051144;
     Xq     =  0.00;
@@ -305,19 +316,32 @@ function [xdot] = long_dyn_lin(x,t,delta_z_t, alpha_t,g,delta_e,T)
 
     theta_trim = 0.8426;
     q_trim = 0;
-    w_trim = 0.9078;
-    u_trim = 61.7263;
+    w_trim = 0.9051;
+    u_trim = 61.7334;
 
     % Forze aerodinamiche in asse body 
     Xt = cos(alpha_t);
-    Zt = T*sin(alpha_t);
+    Zt = sin(alpha_t);
     Mt = delta_z_t;
 
+    % calcolo il \Delta delta_e 
+   
+     if t>=5 && t<=10 
+        delta_e =  ( diff_delta_e);
+    else 
+        delta_e = 0;
+     end
 
-  A = [Xu Xw-q_trim -w_trim -g*cos(theta_trim*pi/180) 0; (q_trim+Zu) (Zw) (Zq+u_trim) (-g*sin(theta_trim*pi/180)) 0; ...
-    Mu Mw Mq 0 0; 0 0 1 0 0; sin(theta_trim*pi/180) -cos(theta_trim*pi/180) 0 (u_trim*cos(theta_trim*pi/180)+w_trim*sin(theta_trim*pi/180)) 0];
+
+  A = [Xu Xw-q_trim -w_trim -g*cos(theta_trim*pi/180) 0;
+      (q_trim+Zu) (Zw) (Zq+u_trim) (-g*sin(theta_trim*pi/180)) 0 ; 
+        Mu Mw Mq 0 0;
+        0 0 1 0 0;
+        sin(theta_trim*pi/180) -cos(theta_trim*pi/180) 0 u_trim*cos(theta_trim*pi/180)+w_trim*sin(theta_trim*pi/180) 0];
+
    B = [Xde Xt; Zde Zt; Mde Mt; 0 0; 0 0]; 
 
    xdot = A*x + B*[delta_e; 0];
 
 end
+
