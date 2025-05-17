@@ -1,4 +1,6 @@
-%% Task 1 (risoluzione equazioni)
+%% CODE
+
+% Task 1 (risoluzione equazioni)
 clear 
 close all
 clc
@@ -120,6 +122,21 @@ end
 
 sim_Lab3_4 = sim('Model_31_03_1.slx');
 
+figure
+plot(sim_Lab3_4.tout,sim_Lab3_4.x1);
+
+figure
+plot(sim_Lab3_4.tout,sim_Lab3_4.x2);
+
+figure
+plot(sim_Lab3_4.tout,sim_Lab3_4.x3);
+
+figure
+plot(sim_Lab3_4.tout,sim_Lab3_4.x4);
+
+figure
+plot(sim_Lab3_4.tout,sim_Lab3_4.x5);
+
 
 
 % task 5
@@ -127,7 +144,9 @@ sim_Lab3_4 = sim('Model_31_03_1.slx');
 
 % a mano
 
-%% task 6
+
+
+% task 6
 clc
 
     Xu     = -0.057076461;
@@ -236,7 +255,8 @@ end
 
 
 
-%% task 7
+
+% task 7
 
 x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
 
@@ -267,7 +287,10 @@ plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
 
 
 
-%% task 8 (simulink linearizzato)
+
+
+% task 8
+% simulink linearizzato
 
 sim_Lab3_8 = sim('Model_31_03_2.slx');
 
@@ -289,7 +312,9 @@ plot(sim_Lab3_8.tout,sim_Lab3_8.x5);
 
 
 
-%% functions 
+
+
+%% FUNCTIONS
 
 % Task 1
 
