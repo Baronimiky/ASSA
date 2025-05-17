@@ -122,36 +122,11 @@ sim_Lab3_4 = sim('Model_31_03_1.slx');
 
 
 
-%% task 5 linearizzazione
+% task 5
+% linearizzazione
 
+% a mano
 
-x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
-
-
-tempo2 = 0:0.1:300;
-
-
-Odefun4 = @(t,x) long_dyn_lin(t,x,delta_z_t, alpha_t,g, ...
-                          diff_delta_e*pi/180);
-x0 = [0;0;0;0;0];
-[t_out5, x_out5] = ode45(Odefun4, tempo2, x0);
-
-
-for i = 1:4
-   figure
-   plot(t_out5,x0_ver_lin(i)+x_out5(:,i)); 
-end
-
-%
-% 
-% grafico il confronto molto rapidamente e molto male
- figure
-i = 5
-
- plot(t_out5,x_out5(:,i)); 
- hold on
- plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
-%
 %% task 6
 clc
 
@@ -259,12 +234,62 @@ hold off;
     grid on 
 end
 
-% task 8 (simulink linearizzato)
+
+
+%% task 7
+
+x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
+
+
+tempo2 = 0:0.1:300;
+
+
+Odefun4 = @(t,x) long_dyn_lin(t,x,delta_z_t, alpha_t,g, ...
+                          diff_delta_e*pi/180);
+x0 = [0;0;0;0;0];
+[t_out5, x_out5] = ode45(Odefun4, tempo2, x0);
+
+
+for i = 1:4
+   figure
+   plot(t_out5,x0_ver_lin(i)+x_out5(:,i)); 
+end
+
+%
+% 
+% grafico il confronto molto rapidamente e molto male
+figure
+i = 5;
+
+plot(t_out5,x_out5(:,i)); 
+hold on
+plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
+
+
+
+%% task 8 (simulink linearizzato)
 
 sim_Lab3_8 = sim('Model_31_03_2.slx');
 
 
-% functions 
+figure
+plot(sim_Lab3_8.tout,sim_Lab3_8.x1);
+
+figure
+plot(sim_Lab3_8.tout,sim_Lab3_8.x2);
+
+figure
+plot(sim_Lab3_8.tout,sim_Lab3_8.x3);
+
+figure
+plot(sim_Lab3_8.tout,sim_Lab3_8.x4);
+
+figure
+plot(sim_Lab3_8.tout,sim_Lab3_8.x5);
+
+
+
+%% functions 
 
 % Task 1
 
