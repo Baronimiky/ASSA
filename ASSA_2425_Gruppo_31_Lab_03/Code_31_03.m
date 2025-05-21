@@ -135,10 +135,9 @@ ylabel('Angolo di attacco "alpha" (°)')
 
 % Task 3 
 
-tempo2 = 0:0.1:300; 
+tempo2 = 0:0.1:100; 
 
 diff_delta_e = -1; % [°]
-
 
 
 Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c, g, coeff, ...
@@ -148,12 +147,35 @@ Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c
 [t_out3, x_out3] = ode45(Odefun3, tempo2, x0_ver);
 
 
+x_out3(:,4) = [x_out3(:,4)*180/pi]; % per ottenere theta in gradi 
+
 for i = 1:5
    figure(i)
    plot(tempo2,x_out3(:,i)); 
+   grid on
+    xlabel('Tempo(s)')
+
+    switch i
+        case 1
+            ylabel('Velocità in avanti "u" (m/s)');
+        case 2
+            ylabel('Velocità verticale "w" (m/s)');
+        case 3
+            ylabel('Velocità angolare di beccheggio "q" (rad/s)');
+        case 4
+            ylabel('Angolo di beccheggio "theta (°)');
+        case 5
+            ylabel('Quota "h" (m)');
+        end
 end
 
-
+alpha = atan(x_out3(:,2)./x_out3(:,1));
+alpha_deg = alpha.* 180/pi;
+figure
+plot(tempo2, alpha_deg);
+xlabel('tempo(s)'); 
+ylabel('Angolo di attacco "alpha" (°)')
+grid on
 
 
 % Task 4
