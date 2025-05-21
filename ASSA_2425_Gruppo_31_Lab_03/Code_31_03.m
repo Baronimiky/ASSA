@@ -20,7 +20,7 @@ V = 61.74; % [m/s]
 g = 9.81; % [m/s^2]
 
 
-x0 = [0.5, -0.5, 500];  % vettore di guess iniziale, fsolve ha bisogno di un vettore di valori 
+x0 = [0.5, -0.5, 10000];  % vettore di guess iniziale, fsolve ha bisogno di un vettore di valori 
 % di stima iniziali per poi effettuare delle iterazioni fino a convergenza.
 % In teoria andrebbero messi valori che potrebbero essere reali (ho preso
 % spunto dalle soluzioni). Mentre una buona guess per T potrebbe essere il
