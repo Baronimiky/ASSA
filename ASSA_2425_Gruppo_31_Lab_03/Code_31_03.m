@@ -182,22 +182,33 @@ grid on
 
 sim_Lab3_4 = sim('Model_31_03_1.slx');
 
-figure
+figure();
+tiledlayout(3,2);
+
+nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x1);
+xlabel('Tempo (s)');
+ylabel('Velocità in avanti "u" (m/s)');
 
-figure
+nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x2);
+xlabel('Tempo (s)');
+ylabel('Velocità verticale "w" (m/s)');
 
-figure
+nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x3);
+xlabel('Tempo (s)');
+ylabel('Velocità angolare di beccheggio "q" (rad/s)');
 
-figure
+nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x4);
+xlabel('Tempo (s)');
+ylabel('Angolo di beccheggio "theta (°)');
 
-figure
+nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x5);
-
-
+xlabel('Tempo (s)');
+ylabel('Quota "h" (m)');
 
 % task 5
 % linearizzazione
