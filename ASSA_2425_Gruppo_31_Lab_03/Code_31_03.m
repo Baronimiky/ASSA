@@ -185,6 +185,7 @@ sim_Lab3_4 = sim('Model_31_03_1.slx');
 figure();
 tiledlayout(3,2);
 
+
 nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x1);
 xlabel('Tempo (s)');
@@ -360,26 +361,39 @@ plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
 
 
 
-% task 8
+%% task 8
 % simulink linearizzato
 
 sim_Lab3_8 = sim('Model_31_03_2.slx');
 
 
-figure
+figure();
+tiledlayout(3,2);
+
+nexttile;
 plot(sim_Lab3_8.tout,sim_Lab3_8.x1);
+xlabel('Tempo (s)');
+ylabel('Velocità in avanti "u" (m/s)');
 
-figure
+nexttile;
 plot(sim_Lab3_8.tout,sim_Lab3_8.x2);
+xlabel('Tempo (s)');
+ylabel('Velocità verticale "w" (m/s)');
 
-figure
+nexttile;
 plot(sim_Lab3_8.tout,sim_Lab3_8.x3);
+xlabel('Tempo (s)');
+ylabel('Velocità angolare di beccheggio "q" (rad/s)');
 
-figure
+nexttile;
 plot(sim_Lab3_8.tout,sim_Lab3_8.x4);
+xlabel('Tempo (s)');
+ylabel('Angolo di beccheggio "theta (°)');
 
-figure
+nexttile;
 plot(sim_Lab3_8.tout,sim_Lab3_8.x5);
+xlabel('Tempo (s)');
+ylabel('Quota "h" (m)');
 
 
 
