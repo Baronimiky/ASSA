@@ -361,7 +361,7 @@ plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
 
 
 
-%% task 8
+% task 8
 % simulink linearizzato
 
 sim_Lab3_8 = sim('Model_31_03_2.slx');
