@@ -399,6 +399,59 @@ ylabel('Quota "h" (m)');
 
 
 
+
+
+
+
+
+
+
+
+
+
+%% Confronto soluzione linearizzata e non
+
+% HA SENSO?
+
+figure();
+tiledlayout(3,2);
+
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x1-sim_Lab3_4.x1);
+xlabel('Tempo (s)');
+ylabel('Velocità in avanti "u" (m/s)');
+
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x2-sim_Lab3_4.x2);
+xlabel('Tempo (s)');
+ylabel('Velocità verticale "w" (m/s)');
+
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x3-sim_Lab3_4.x3);
+xlabel('Tempo (s)');
+ylabel('Velocità angolare di beccheggio "q" (rad/s)');
+
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x4-sim_Lab3_4.x4);
+xlabel('Tempo (s)');
+ylabel('Angolo di beccheggio "theta (°)');
+
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x5-sim_Lab3_4.x5);
+xlabel('Tempo (s)');
+ylabel('Quota "h" (m)');
+
+
+
+
+
+
+
+
+
+
+
+
 %% FUNCTIONS
 
 % Task 1
