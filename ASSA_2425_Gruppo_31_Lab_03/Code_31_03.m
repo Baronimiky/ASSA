@@ -72,6 +72,7 @@ Odefun = @(t,x) long_dyn(t,x, m, I_yy, rho_h_trim, V, S,delta_z_t, alpha_t,c,g,c
 
 [~, x_out] = ode45(Odefun, tempo, x0_ver);
 
+x_out(:,4) = [x_out(:,4)*180/pi]; % per ottenere theta in gradi 
 for i = 1:5
     figure
     plot(tempo, x_out(:,i), 'LineWidth', 2);  % Usa direttamente x_out
@@ -100,19 +101,18 @@ for i = 1:5
     y_max = y_center + range_fixed / 2;
     
     % Imposta le tacche ogni 0.05
-    yt = y_min:step:y_max;
-    
+
     % Modifica l'asse Y
-    ylim([y_min y_max]);  % Limiti fissi
-    yticks(yt);            % Tacche ogni 0.05
+    ylim([y_min y_max]);  % Limiti fissi         % Tacche ogni 0.05
     yline(0, '--k');       % Aggiungi linea orizzontale a y=0 (facoltativo)
 end
 
-alpha = atan(x_out(:,2)/x_out(:,1));
-alpha_deg = alpha.* 180/pi;
-figure
+alpha = atan(x_out(:,2)./x_out(:,1));
+alpha_deg = alpha* 180/pi;
+figure(7)
 plot(tempo, alpha_deg, 'LineWidth', 2);
-xlabel('tempo(s)'); 
+grid on;
+xlabel('Tempo(s)'); 
 ylabel('Angolo di attacco "alpha" (°)')
  % Calcola la media dei dati per centrare l'asse Y attorno ai dati
     y_center = mean(alpha_deg(:,1));        % Media dei dati
@@ -124,16 +124,14 @@ ylabel('Angolo di attacco "alpha" (°)')
     y_max = y_center + range_fixed / 2;
     
     % Imposta le tacche ogni 0.05
-    yt = y_min:step:y_max;
+
     
     % Modifica l'asse Y
     ylim([y_min y_max]);  % Limiti fissi
-    yticks(yt);            % Tacche ogni 0.05
+           % Tacche ogni 0.05
 
 
-
-
-% Task 3 
+%% Task 3 
 
 tempo2 = 0:0.1:100; 
 
@@ -151,7 +149,7 @@ x_out3(:,4) = [x_out3(:,4)*180/pi]; % per ottenere theta in gradi
 
 for i = 1:5
    figure(i)
-   plot(tempo2,x_out3(:,i)); 
+   plot(tempo2,x_out3(:,i), 'LineWidth', 2); 
    grid on
     xlabel('Tempo(s)')
 
@@ -172,8 +170,8 @@ end
 alpha = atan(x_out3(:,2)./x_out3(:,1));
 alpha_deg = alpha.* 180/pi;
 figure
-plot(tempo2, alpha_deg);
-xlabel('tempo(s)'); 
+plot(tempo2, alpha_deg, 'LineWidth',2);
+xlabel('Tempo(s)'); 
 ylabel('Angolo di attacco "alpha" (°)')
 grid on
 
