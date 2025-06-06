@@ -411,7 +411,7 @@ ylabel('Quota "h" (m)');
 
 
 
-%% Confronto soluzione linearizzata e non tramite modelli MATLAB
+% Confronto soluzione linearizzata e non tramite modelli MATLAB
 
 figure();
 tiledlayout(2,2);
