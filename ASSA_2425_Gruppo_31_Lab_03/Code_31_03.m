@@ -91,8 +91,9 @@ for i = 1:5
         case 5
             ylabel('Quota "h" (m)');
         end
+        title('Dinamica longitudinale non lineare in condizioni di trim')
     % Calcola la media dei dati per centrare l'asse Y attorno ai dati
-    y_center = mean(x_out(:,i));        % Media dei dati
+    y_center = mean(x_out(:,i));         % Media dei dati
     range_fixed = 0.1;                   % Imposta il range fisso dell'asse Y (±0.05)
     step = 0.05;                         % Step tra le tacche (0.05)
     
@@ -109,11 +110,13 @@ end
 
 alpha = atan(x_out(:,2)./x_out(:,1));
 alpha_deg = alpha* 180/pi;
-figure(7)
+figure
 plot(tempo, alpha_deg, 'LineWidth', 2);
 grid on;
 xlabel('Tempo(s)'); 
-ylabel('Angolo di attacco "alpha" (°)')
+ylabel('Angolo di attacco "alpha" (°)');
+title('Dinamica longitudinale non lineare in condizioni di trim');
+
  % Calcola la media dei dati per centrare l'asse Y attorno ai dati
     y_center = mean(alpha_deg(:,1));        % Media dei dati
     range_fixed = 0.1;                   % Imposta il range fisso dell'asse Y (±0.05)
@@ -125,11 +128,9 @@ ylabel('Angolo di attacco "alpha" (°)')
     
     % Imposta le tacche ogni 0.05
 
-    
     % Modifica l'asse Y
     ylim([y_min y_max]);  % Limiti fissi
            % Tacche ogni 0.05
-
 
 % Task 3 
 
@@ -148,12 +149,9 @@ Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c
 x_out3(:,4) = [x_out3(:,4)*180/pi]; % per ottenere theta in gradi 
 
 for i = 1:5
-   figure(i)
+   figure
    plot(tempo2,x_out3(:,i), 'LineWidth', 2); 
    grid on
-    figure(i)
-    plot(tempo2,x_out3(:,i)); 
-    grid on
     xlabel('Tempo(s)')
 
     switch i
@@ -168,6 +166,7 @@ for i = 1:5
         case 5
             ylabel('Quota "h" (m)');
         end
+        title('Dinamica longitudinale non lineare perturbata');
 end
 
 alpha = atan(x_out3(:,2)./x_out3(:,1));
@@ -175,9 +174,9 @@ alpha_deg = alpha.* 180/pi;
 figure
 plot(tempo2, alpha_deg, 'LineWidth',2);
 xlabel('Tempo(s)'); 
-ylabel('Angolo di attacco "alpha" (°)')
+ylabel('Angolo di attacco "alpha" (°)');
+title('Dinamica longitudinale non lineare perturbata');
 grid on
-
 
 % Task 4
 
