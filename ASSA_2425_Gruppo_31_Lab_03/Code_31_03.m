@@ -48,6 +48,7 @@ w = u* tan(x_trim(1));
 
 % Definisco le equazioni della dinamica longitudinale: 
 
+
 % Task 2 
 
 coeff = struct();  
@@ -131,6 +132,7 @@ ylabel('Angolo di attacco "alpha" (°)')
            % Tacche ogni 0.05
 
 
+
 % Task 3 
 
 tempo2 = 0:0.1:100; 
@@ -164,7 +166,7 @@ for i = 1:5
         case 3
             ylabel('Velocità angolare di beccheggio "q" (rad/s)');
         case 4
-            ylabel('Angolo di beccheggio "theta (°)');
+            ylabel('Angolo di beccheggio "theta" (°)');
         case 5
             ylabel('Quota "h" (m)');
         end
@@ -177,6 +179,7 @@ plot(tempo2, alpha_deg, 'LineWidth',2);
 xlabel('Tempo(s)'); 
 ylabel('Angolo di attacco "alpha" (°)')
 grid on
+
 
 
 % Task 4
@@ -214,10 +217,6 @@ ylabel('Quota "h" (m)');
 
 
 
-
-
-
-
 % CONFRONTO
 
 figure();
@@ -248,13 +247,6 @@ nexttile;
 plot(sim_Lab3_4.tout,sim_Lab3_4.x5-x_out3(:,5));
 xlabel('Tempo (s)');
 ylabel('Quota "h" (m)');
-
-
-
-
-
-
-
 
 
 
@@ -399,7 +391,7 @@ end
 % 
 % grafico il confronto molto rapidamente e molto male (DA CAMBIARE!)
 figure
-i = 5;
+i = 4;
 
 plot(t_out5,x_out5(:,i)); 
 hold on
@@ -446,21 +438,10 @@ ylabel('Quota "h" (m)');
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-% Confronto soluzione linearizzata e non
+% Confronto soluzione linearizzata e non tramite modelli MATLAB
 
 figure();
-tiledlayout(3,2);
+tiledlayout(2,2);
 
 nexttile;
 plot(sim_Lab3_8.tout,x0_ver_lin(1)+x_out5(:,1)-x_out3(:,1), 'LineWidth', 2);
@@ -478,18 +459,37 @@ xlabel('Tempo (s)');
 ylabel('Velocità angolare di beccheggio "q" (rad/s)');
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(4)+x_out5(:,4)-x_out3(:,4), 'LineWidth', 2);
+plot(sim_Lab3_8.tout,(x0_ver_lin(4)+x_out5(:,4)-x_out3(:,4))*pi/180, 'LineWidth', 2);
 xlabel('Tempo (s)');
-ylabel('Angolo di beccheggio "theta (°)');
+ylabel('Angolo di beccheggio "theta" (rad)');
+
+
+
+
+% Confronto soluzione linearizzata e non tramite modelli SIMULINK
+
+figure();
+tiledlayout(2,2);
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(5)+x_out5(:,5)-x_out3(:,5), 'LineWidth', 2);
+plot(sim_Lab3_8.tout,sim_Lab3_8.x1-sim_Lab3_4.x1, 'LineWidth', 2);
 xlabel('Tempo (s)');
-ylabel('Quota "h" (m)');
+ylabel('Velocità in avanti "u" (m/s)');
 
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x2-sim_Lab3_4.x2, 'LineWidth', 2);
+xlabel('Tempo (s)');
+ylabel('Velocità verticale "w" (m/s)');
 
+nexttile;
+plot(sim_Lab3_8.tout,sim_Lab3_8.x3-sim_Lab3_4.x3, 'LineWidth', 2);
+xlabel('Tempo (s)');
+ylabel('Velocità angolare di beccheggio "q" (rad/s)');
 
-
+nexttile;
+plot(sim_Lab3_8.tout,(sim_Lab3_8.x4-sim_Lab3_4.x4)*pi/180, 'LineWidth', 2);
+xlabel('Tempo (s)');
+ylabel('Angolo di beccheggio "theta" (rad)');
 
 
 
