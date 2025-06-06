@@ -338,33 +338,40 @@ end
 
 x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
 
-
 tempo2 = 0:0.1:100;
-
-
 Odefun4 = @(t,x) long_dyn_lin(t,x,delta_z_t, alpha_t,g, ...
                           diff_delta_e*pi/180);
 x0 = [0;0;0;0;0];
 [t_out5, x_out5] = ode45(Odefun4, tempo2, x0);
 
-
+x0_ver_lin = [61.7334;0.9051;0;0.84; 0]; %theta in gradi
+x_out5(:,4) = x_out5(:,4)*180/pi; % trasformo in gradi
 for i = 1:4
    figure
-   plot(t_out5,x0_ver_lin(i)+x_out5(:,i)); 
-end
+   plot(t_out5,x0_ver_lin(i)+x_out5(:,i),'LineWidth',2); 
+   grid on
+xlabel('Tempo(s)')
+title('Confronto risposta lineare e non lineare')
+    switch i
+        case 1
+            ylabel('Velocità in avanti "u" (m/s)');
+        case 2
+            ylabel('Velocità verticale "w" (m/s)');
+        case 3
+            ylabel('Velocità angolare di beccheggio "q" (rad/s)');
+        case 4
+            ylabel('Angolo di beccheggio "theta (°)');
+    end
+end   
 
-%
-% 
-% grafico il confronto molto rapidamente e molto male (DA CAMBIARE!)
-figure
+
+x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
+
 i = 4;
 
 plot(t_out5,x_out5(:,i)); 
 hold on
 plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
-
-
-
 
 
 % task 8
