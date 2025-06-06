@@ -278,7 +278,7 @@ G = tf(sys);
 for i=1:5
 figure;
 
-% 🔧 Allarga la figura per spazio laterale
+%  Allarga la figura per spazio laterale
 set(gcf, 'Units', 'normalized', 'Position', [0.1 0.1 0.6 0.7]);
 
 % Calcola poli e zeri
