@@ -148,15 +148,12 @@ Odefun3 = @(t,x) long_dyn(t, x, m, I_yy, rho_h_trim, V, S, delta_z_t, alpha_t, c
 x_out3(:,4) = [x_out3(:,4)*180/pi]; % per ottenere theta in gradi 
 
 for i = 1:5
-<<<<<<< Updated upstream
    figure(i)
    plot(tempo2,x_out3(:,i), 'LineWidth', 2); 
    grid on
-=======
     figure(i)
     plot(tempo2,x_out3(:,i)); 
     grid on
->>>>>>> Stashed changes
     xlabel('Tempo(s)')
 
     switch i
@@ -466,27 +463,27 @@ figure();
 tiledlayout(3,2);
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(1)+x_out5(:,1)-x_out3(:,1));
+plot(sim_Lab3_8.tout,x0_ver_lin(1)+x_out5(:,1)-x_out3(:,1), 'LineWidth', 2);
 xlabel('Tempo (s)');
 ylabel('Velocità in avanti "u" (m/s)');
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(2)+x_out5(:,2)-x_out3(:,2));
+plot(sim_Lab3_8.tout,x0_ver_lin(2)+x_out5(:,2)-x_out3(:,2), 'LineWidth', 2);
 xlabel('Tempo (s)');
 ylabel('Velocità verticale "w" (m/s)');
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(3)+x_out5(:,3)-x_out3(:,3));
+plot(sim_Lab3_8.tout,x0_ver_lin(3)+x_out5(:,3)-x_out3(:,3), 'LineWidth', 2);
 xlabel('Tempo (s)');
 ylabel('Velocità angolare di beccheggio "q" (rad/s)');
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(4)+x_out5(:,4)-x_out3(:,4));
+plot(sim_Lab3_8.tout,x0_ver_lin(4)+x_out5(:,4)-x_out3(:,4), 'LineWidth', 2);
 xlabel('Tempo (s)');
 ylabel('Angolo di beccheggio "theta (°)');
 
 nexttile;
-plot(sim_Lab3_8.tout,x0_ver_lin(5)+x_out5(:,5)-x_out3(:,5));
+plot(sim_Lab3_8.tout,x0_ver_lin(5)+x_out5(:,5)-x_out3(:,5), 'LineWidth', 2);
 xlabel('Tempo (s)');
 ylabel('Quota "h" (m)');
 
