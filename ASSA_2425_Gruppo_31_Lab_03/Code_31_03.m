@@ -367,11 +367,16 @@ end
 
 x0_ver_lin = [61.7334;0.9051;0;0.84*pi/180; 0]; % [u,w,q,theta,h]
 
-i = 4;
+% errori
 
-plot(t_out5,x_out5(:,i)); 
-hold on
-plot(tempo2,x_out3(:,i)-x0_ver_lin(i))
+for i = 4
+   figure
+   plot(t_out5,x_out3(:,i)-(x0_ver_lin(i)+x_out5(:,i)),"LineWidth",2); 
+   grid on
+   title("Differenza tra il modello lineare e non lineare per \theta")
+   xlabel("Tempo [s]")
+   ylabel("angolo [rad]")
+end
 
 
 % task 8
@@ -439,7 +444,7 @@ ylabel('Angolo di beccheggio "theta" (rad)');
 
 
 
-%% FUNCTIONS
+% FUNCTIONS
 
 % Task 1
 
