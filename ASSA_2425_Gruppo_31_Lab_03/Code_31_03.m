@@ -503,7 +503,26 @@ ylabel('Quota "h" (m)');
 % Task 1
 
 function F = trim_equations(x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g)
-    % x = [alpha; delta_e; T]
+
+    % trim_equations
+    % This function computes the longitudinal trim conditions for the aircraft by
+    % solving the nonlinear equilibrium equations.
+    %
+    % Inputs:
+    %   x         - Vector of unknowns [alpha; delta_e; T]
+    %   m         - Mass of the aircraft [kg]
+    %   I_yy      - Moment of inertia about the pitch axis [kg*m^2]
+    %   rho       - Air density [kg/m^3]
+    %   V         - Flight speed [m/s]
+    %   S         - Wing surface area [m^2]
+    %   delta_z_t - Thrust arm with respect to CG [m]
+    %   alpha_t   - Thrust angle with respect to body axis [rad]
+    %   c         - Mean aerodynamic chord [m]
+    %   g         - Gravity acceleration [m/s^2]
+    %
+    % Output:
+    %   F - Vector of trim equations [eq1; eq2; eq3]
+
     alpha = x(1);
     delta_e = x(2);
     T = x(3);
@@ -573,6 +592,28 @@ end
 % Task 2
 function [xdot] = long_dyn(t,x, m, I_yy, rho, V, S,delta_z_t, alpha_t,c,g,coeff,delta_e,T)
 
+    % long_dyn
+    % This function implements the nonlinear longitudinal dynamics of the aircraft.
+    %
+    % Inputs:
+    %   t          - Time [s]
+    %   x          - State vector [u; w; q; theta; h]
+    %   m          - Mass of the aircraft [kg]
+    %   I_yy       - Moment of inertia about the pitch axis [kg*m^2]
+    %   rho        - Air density [kg/m^3]
+    %   V          - Airspeed [m/s]
+    %   S          - Wing surface area [m^2]
+    %   delta_z_t  - Thrust arm with respect to CG [m]
+    %   alpha_t    - Thrust angle with respect to body axis [rad]
+    %   c          - Mean aerodynamic chord [m]
+    %   g          - Gravity acceleration [m/s^2]
+    %   coeff      - Structure containing aerodynamic coefficients
+    %   delta_e    - Elevator deflection [rad]
+    %   T          - Thrust [N]
+    %
+    % Output:
+    %   xdot - Time derivative of the state vector
+
     u = x(1); 
     w = x(2);
     q = x(3);
@@ -627,6 +668,19 @@ end
 
 function [delta_e3] = pos_equilibratore(t,delta_trim, diff_delta_e)
 
+    % pos_equilibratore
+    % This function computes the elevator deflection as a function of time.
+    % Between t = 5 s and t = 10 s, a perturbation of value diff_delta_e
+    % is added to delta_trim.
+    %
+    % Inputs:
+    %   t             - Time [s]
+    %   delta_trim    - Elevator deflection at trim [rad]
+    %   diff_delta_e  - Elevator deflection variation [rad]
+    %
+    % Output:
+    %   delta_e3 - Resulting elevator deflection at time t [rad]
+
     if t>=5 && t<=10 
         delta_e3 =  delta_trim + diff_delta_e;
     else 
@@ -638,7 +692,22 @@ end
 % Task 5
 
 function [xdot] = long_dyn_lin(t,x,delta_z_t, alpha_t,g,diff_delta_e)
-    
+
+    % long_dyn_lin
+    % This function implements the linearized longitudinal dynamics around the trim point.
+    % It returns the time derivative of x, the perturbation state vector.
+    %
+    % Inputs:
+    %   t             - Time [s]
+    %   x             - Perturbation state vector [Δu; Δw; Δq; Δθ; Δh]
+    %   delta_z_t     - Thrust arm with respect to CG [m]
+    %   alpha_t       - Thrust angle with respect to body axis [rad]
+    %   g             - Gravity acceleration [m/s^2]
+    %   diff_delta_e  - Elevator deflection variation [rad]
+    %
+    % Output:
+    %   xdot - Time derivative of the perturbation state vector
+
     Xu     = -0.057076461;
     Xw     =  0.125051144;
     Xq     =  0.00;
